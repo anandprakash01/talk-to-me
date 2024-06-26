@@ -1,2 +1,2 @@
 # talk-to-me
-Chat app using MERN Stack
+Real time messaging app using MERN Stack
