@@ -35,7 +35,7 @@ const getMessages = asyncFunction(async (req, res) => {
     res.json(messages);
   });
 
-  // here this decoaded token is undefined
+  // here this decoded token is undefined
   // console.log(decodedToken.userId);
 });
 

@@ -1,0 +1,44 @@
+/* Firefox */
+
+/* html { */
+/* scrollbar-width: thin; */
+/* thumb and track color */
+/* scrollbar-color: #888 #020000; */
+/* } */
+
+.contact-scrollbar::-webkit-scrollbar {
+  width: 0;
+}
+
+.message-scrollbar::-webkit-scrollbar {
+  width: 0.5rem;
+  /* opacity: 0;
+  transition: opacity 250ms; */
+}
+
+/* .message-scrollbar {
+  scrollbar-color: red green;
+  scroll-behavior: smooth;
+  scrollbar-face-color: aqua;
+} */
+
+.message-scrollbar::-webkit-scrollbar-track {
+  background: #187206;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.message-scrollbar::-webkit-scrollbar-thumb {
+  background: #18cf00;
+  border: #a0ff90 solid 1px;
+  border-radius: 0.5rem;
+}
+
+.message-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #7eb400;
+  opacity: 1;
+}
+.message-scrollbar:active::-webkit-scrollbar {
+  background: #7eb400;
+  opacity: 1;
+}

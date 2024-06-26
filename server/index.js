@@ -18,11 +18,11 @@ const messageRoutes = require("./routes/message.js");
 const errorMiddleware = require("./middlewares/error.js");
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT;
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 // console.log(jwtSecretKey);
 
-app.use("/src/uploads", express.static(__dirname + "/src/uploads")); //make upload dir to available to server
+app.use("/uploads", express.static(__dirname + "/uploads")); //make upload dir to available to server
 app.use(express.json());
 app.use(cookieParser());
 // app.use(cors()); //cross origin resource sharing
@@ -144,7 +144,7 @@ wss.on("connection", (connection, req) => {
   }, 10000);
 
   connection.on("pong", () => {
-    // after reciving the pong message this will clear deathTimer
+    // after receiving the pong message this will clear deathTimer
     clearTimeout(connection.deathTimer);
   });
 
@@ -162,7 +162,7 @@ wss.on("connection", (connection, req) => {
 
       //changing file name and saving it
       const parts = file.name.split(".");
-      const ext = parts[parts.length - 1]; //extention
+      const ext = parts[parts.length - 1]; //extension
       filename = Date.now() + "." + ext;
       const path = __dirname + "/src/uploads/" + filename;
       // const bufferData = new Buffer(file.data, "base64");
@@ -185,7 +185,7 @@ wss.on("connection", (connection, req) => {
       });
 
       // sent message to other person
-      // user can be loggedin to many devices
+      // user can be logged in to many devices
       [...wss.clients]
         .filter(c => c.userId === recipient && c.isAlive)
         .forEach(c => {
@@ -202,6 +202,6 @@ wss.on("connection", (connection, req) => {
     }
   });
 
-  //notify everyone about online poeple
+  //notify everyone about online people
   notifyAboutOnlinePeople();
 });
