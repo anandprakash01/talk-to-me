@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "api for the \"talk to me\"",
+  "description": "apis for the \"talk to me\"",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
