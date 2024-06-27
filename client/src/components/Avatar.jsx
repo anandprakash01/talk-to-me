@@ -25,7 +25,7 @@ const Avatar = ({username, userId, online}) => {
       className={`w-10 h-10 relative rounded-full flex items-center justify-center ${color}`}
     >
       <div className="w-full text-center font-semibold capitalize opacity-50">
-        {username?.charAt()}
+        {username[0]}
       </div>
       {online && (
         <div

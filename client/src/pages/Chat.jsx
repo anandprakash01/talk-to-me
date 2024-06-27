@@ -190,7 +190,7 @@ const Chat = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="bg-blue-50 w-1/3 flex flex-col">
+      <div className="bg-bg_secondary w-1/3 flex flex-col border-r border-r-[#939185]">
         <Logo />
         <div className="flex-grow relative h-full overflow-y-scroll overflow-x-hidden contact-scrollbar">
           <div className="absolute top-0 bottom-0 left-0 right-0">
@@ -229,12 +229,12 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-5 my-2">
-          <span className="text-sm text-gray-700 flex items-center gap-1 p-2">
+        <div className="flex items-center justify-center gap-5 px-1 py-4 bg-primary_color">
+          <span className="text-sm text-[#F9DBBB] flex items-center gap-1 p-2 select-none cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill="currentColor"
+              fill="#FFF455"
               className="size-5"
             >
               <path
@@ -247,18 +247,18 @@ const Chat = () => {
           </span>
           <button
             onClick={handleLogout}
-            className="text-sm bg-blue-200 text-gray-600 py-1 px-2 rounded-sm border"
+            className="text-sm bg-[#24262b] text-[#dcb5e9] font-semibold py-1 px-2 rounded-lg hover:bg-[#2E4F4F] hover:text-white transition-all duration-300"
           >
             Logout
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col bg-blue-100 w-2/3 ">
+      <div className="flex flex-col bg-[#686D76] w-2/3 ">
         {selectedUserId && (
-          <div className="flex items-center justify-between gap-1 bg-red-300 p-2">
+          <div className="flex items-center justify-between gap-1 bg-[#373A40] p-2">
             <Avatar userId={selectedUserId} username={username} />
-            <div className="flex font-serif ">
+            <div className="flex capitalize font-semibold text-white text-lg">
               {onlinePeople[selectedUserId] || offlinePeople[selectedUserId]}
             </div>
             <div className=""></div>
@@ -292,7 +292,7 @@ const Chat = () => {
         </div>
 
         {selectedUserId && (
-          <form onSubmit={sendMessage} className="flex gap-2 m-1">
+          <form onSubmit={sendMessage} className="flex gap-2 p-3 bg-primary_color ">
             <input
               type="text"
               value={newMessageText}
@@ -300,11 +300,11 @@ const Chat = () => {
                 setNewMessageText(e.target.value);
               }}
               placeholder="Type your message here"
-              className="bg-white flex-grow border p-2 rounded-sm"
+              className="text-white bg-[#555961] flex-grow border p-2 rounded-lg border-none outline-none focus-within:border focus-within:border-[#e77600]"
             />
             <label
               type="button"
-              className="bg-blue-200 p-2 rounded-sm w-10 border border-blue-300 text-gray-700 cursor-pointer"
+              className="bg-[#24262b] p-2 rounded-lg w-10 text-[#dcb5e9] cursor-pointer hover:bg-[#2E4F4F] hover:text-white transition-all duration-300"
             >
               <input type="file" onChange={handleSendFile} className="hidden" />
               <svg
@@ -320,12 +320,15 @@ const Chat = () => {
                 />
               </svg>
             </label>
-            <button type="submit" className="bg-blue-500 w-10 p-2 text-white rounded-sm">
+            <button
+              type="submit"
+              className="bg-[#24262b] w-10 p-2 rounded-lg text-[#dcb5e9] cursor-pointer hover:bg-[#2E4F4F] hover:text-white transition-all duration-300"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="send">
                 <path fill="none" d="M0 0h24v24H0V0z"></path>
                 <path
                   d="M3.4 20.4l17.45-7.48c.81-.35.81-1.49 0-1.84L3.4 3.6c-.66-.29-1.39.2-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"
-                  fill="#010101"
+                  fill="currentColor"
                   className="color000000 svgShape"
                 ></path>
               </svg>

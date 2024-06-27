@@ -5,13 +5,12 @@ import axios from "axios";
 const DisplayMessages = ({id, sender, text, file}) => {
   return (
     <div
-      key={id}
-      className={"" + (sender === id ? "text-right ml-10" : "text-left mr-10")}
+      className={"break-all " + (sender === id ? "text-right ml-20" : "text-left mr-20")}
     >
       <div
         className={
           "inline-block p-2 my-1 rounded-md text-sm text-left " +
-          (sender === id ? "bg-blue-500 text-white" : "bg-white text-gray-600")
+          (sender === id ? "bg-[#4f5c5e] text-[#FBF9F1]" : "bg-[#B4B4B8] text-[#0f1114]")
         }
       >
         {text}
@@ -19,7 +18,7 @@ const DisplayMessages = ({id, sender, text, file}) => {
           <div className="">
             <a
               className="border-b flex items-center gap-1"
-              href={axios.defaults.baseURL + "/src/uploads/" + file}
+              href={axios.defaults.baseURL + "/uploads/" + file}
               target="_blank"
             >
               <svg

@@ -18,7 +18,7 @@ const messageRoutes = require("./routes/message.js");
 const errorMiddleware = require("./middlewares/error.js");
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 // console.log(jwtSecretKey);
 
@@ -164,7 +164,7 @@ wss.on("connection", (connection, req) => {
       const parts = file.name.split(".");
       const ext = parts[parts.length - 1]; //extension
       filename = Date.now() + "." + ext;
-      const path = __dirname + "/src/uploads/" + filename;
+      const path = __dirname + "/uploads/" + filename;
       // const bufferData = new Buffer(file.data, "base64");
 
       // console.log(file.data);
@@ -172,7 +172,7 @@ wss.on("connection", (connection, req) => {
       const bufferData = Buffer.from(file.data.split(",")[1], "base64");
 
       fs.writeFile(path, bufferData, () => {
-        // console.log("file saved: " + path);
+        console.log("file saved: " + path);
       });
     }
 

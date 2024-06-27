@@ -23,22 +23,24 @@
 } */
 
 .message-scrollbar::-webkit-scrollbar-track {
-  background: #187206;
+  background: #404349;
   border-radius: 0.5rem;
   margin-top: 0.5rem;
 }
 
 .message-scrollbar::-webkit-scrollbar-thumb {
-  background: #18cf00;
-  border: #a0ff90 solid 1px;
+  background: #24262b;
   border-radius: 0.5rem;
 }
 
 .message-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #7eb400;
+  background: #6d7688;
   opacity: 1;
+  transition: all;
+  transition-duration: 0.5s;
+  cursor: grab;
 }
 .message-scrollbar:active::-webkit-scrollbar {
-  background: #7eb400;
-  opacity: 1;
+  /* background: #7eb400;
+  opacity: 1; */
 }
