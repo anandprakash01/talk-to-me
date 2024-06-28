@@ -46,11 +46,9 @@ if (process.env.NODE_ENV === "production") {
 
 // ========================Deployment===================
 
+const MONGO_URI = process.env.MONGO_URI;
 const connectDB = async () => {
-  await mongoose.connect("mongodb://127.0.0.1:27017/talk_to_me");
-  // await mongoose.connect(
-  // "mongodb+srv://anandprakash:U02V9wbhn0RVpGfp@cluster0.kwzerw3.mongodb.net/talk_to_me"
-  // );
+  await mongoose.connect(MONGO_URI);
 };
 
 connectDB()
