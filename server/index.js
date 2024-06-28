@@ -7,6 +7,7 @@ const cors = require("cors");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const path = require("path");
 
 const Messages = require("./models/message.js");
 
@@ -32,6 +33,18 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/messages", messageRoutes);
 
 // app.use(errorMiddleware);
+
+// ========================Deployment===================
+
+const __dirname1 = path.resolve();
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname1, "/client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname1, "client", "dist", "index.html"));
+  });
+}
+
+// ========================Deployment===================
 
 const connectDB = async () => {
   await mongoose.connect("mongodb://127.0.0.1:27017/talk_to_me");
