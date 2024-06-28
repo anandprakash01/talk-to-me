@@ -24,7 +24,7 @@ const Layout = () => {
 };
 
 function App() {
-  axios.defaults.baseURL = "http://localhost:5000";
+  axios.defaults.baseURL = process.env.FRONTEND_URL;
   axios.defaults.withCredentials = true;
 
   const router = createBrowserRouter(
