@@ -32,7 +32,7 @@ const Chat = () => {
   }, [id, username]);
 
   const connectToWS = () => {
-    const ws = new WebSocket("ws://localhost:5000");
+    const ws = new WebSocket(process.env.FRONTEND_URL);
     setWs(ws);
 
     ws.addEventListener("message", handleMessage);

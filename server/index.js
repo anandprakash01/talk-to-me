@@ -46,9 +46,8 @@ if (process.env.NODE_ENV === "production") {
 
 // ========================Deployment===================
 
-const MONGO_URI = process.env.MONGO_URI;
 const connectDB = async () => {
-  await mongoose.connect(MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI);
 };
 
 connectDB()
