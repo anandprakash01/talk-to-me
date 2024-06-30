@@ -32,7 +32,7 @@ const Chat = () => {
   }, [id, username]);
 
   const connectToWS = () => {
-    const ws = new WebSocket(process.env.FRONTEND_URL);
+    const ws = new WebSocket("https://talk-to-me-anand.onrender.com");
     setWs(ws);
 
     ws.addEventListener("message", handleMessage);
