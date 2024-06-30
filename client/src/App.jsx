@@ -24,7 +24,7 @@ const Layout = () => {
 };
 
 function App() {
-  axios.defaults.baseURL = process.env.FRONTEND_URL;
+  axios.defaults.baseURL = "https://talk-to-me-anand.onrender.com";
   axios.defaults.withCredentials = true;
 
   const router = createBrowserRouter(
