@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 // require("dotenv").config();
@@ -9,14 +8,16 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 
+dotenv.config(); // this should be above before the modules/files are imported then only it will get the variables
+
+const connectDB = require("./config/db.js");
 const Messages = require("./models/message.js");
-
-dotenv.config(); // this should be above before the routes are imported
-
 const userRoutes = require("./routes/user.js");
-const messageRoutes = require("./routes/message.js");
+const chatRoutes = require("./routes/chat.js");
+const {notFound, errorHandler} = require("./middlewares/error.js");
+const authMiddleware = require("./middlewares/authMiddleware.js");
 
-const errorMiddleware = require("./middlewares/error.js");
+connectDB();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -30,9 +31,10 @@ app.use(cookieParser());
 app.use(cors({credentials: true, origin: process.env.FRONTEND_URL}));
 
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/chat", authMiddleware, chatRoutes);
 
-// app.use(errorMiddleware);
+app.use(notFound);
+app.use(errorHandler);
 
 // ========================Deployment===================
 
@@ -46,20 +48,8 @@ if (process.env.NODE_ENV === "production") {
 
 // ========================Deployment===================
 
-const connectDB = async () => {
-  await mongoose.connect(process.env.MONGO_URI);
-};
-
-connectDB()
-  .then(() => {
-    console.log("MongoDB Connected");
-  })
-  .catch(err => {
-    console.log("Error while connecting mongoDB", err);
-  });
-
 const server = app.listen(port, () => {
-  console.log("Server is up and running at", port);
+  console.log(`Server is up and running at: ${port}`.blue.bold);
 });
 
 // console.log("server: ", server);
@@ -187,6 +177,7 @@ wss.on("connection", (connection, req) => {
     }
 
     if (recipient && (text || file)) {
+      //create message in database
       const messageDoc = await Messages.create({
         sender: connection.userId,
         recipient,

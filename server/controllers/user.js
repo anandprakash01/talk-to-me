@@ -7,25 +7,46 @@ const {asyncFunction} = require("../utils/helper.js");
 
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
+//Register User
 const registerUser = asyncFunction(async (req, res) => {
   //   throw new Error("help me");
 
-  const {username, password} = req.body;
+  const {name, email, password, profilePicture} = req.body;
 
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync(password, salt);
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Please enter all fields",
+    });
+  }
 
-  //   const newUser = new User({username, password});
+  const alreadyRegistered = await Users.findOne({email});
+  if (alreadyRegistered) {
+    return res.status(400).json({
+      success: false,
+      message: "User is already Registered, please login",
+    });
+  }
+
+  // const salt = bcrypt.genSaltSync(10);
+  // const hashedPassword = bcrypt.hashSync(password, salt);
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  //   const newUser = new User({name, password});
   //   await newUser.save();
   const user = await Users.create({
-    username: username,
+    name,
+    email,
     password: hashedPassword,
+    ...(profilePicture ? {profilePicture} : {}),
   });
-  // console.log(user);
 
   const tokenPayload = {
-    username: user.username,
-    userId: user._id,
+    expiresIn: "30d",
+    // exp: Math.floor(Date.now() / 1000 + 36000),
+    email,
+    _id: user._id,
   };
 
   // jwt.sign(tokenPayload, jwtSecretKey, {}, (err, token) => {
@@ -38,76 +59,122 @@ const registerUser = asyncFunction(async (req, res) => {
 
   const token = jwt.sign(tokenPayload, jwtSecretKey);
 
-  // send JWT in the headers.Authorization not in cookie, this is valunrable
-  res.cookie("token", token, {sameSite: "none", secure: true}).status(201).json({
-    success: "true",
-    userId: user._id,
-    username: user.username,
+  await Users.findByIdAndUpdate(user._id, {token});
+
+  //sending token in cookies
+  res.cookie("token", token, {
+    httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
+    secure: true, // Ensures the cookie is sent over HTTPS
+    sameSite: "Strict", // Prevents CSRF attacks
   });
 
-  //   res.status(200).json({success: true});
+  //sending token in headers
+  res.setHeader("Authorization", "Bearer " + token);
+
+  res.status(201).json({
+    success: true,
+    message: "User registered successfully, please login",
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    profilePicture: user.profilePicture,
+  });
 });
 
+// Login User
 const loginUser = asyncFunction(async (req, res) => {
-  const {username, password} = req.body;
+  const {email, password} = req.body;
 
-  const foundUser = await Users.findOne({username});
-
-  if (foundUser) {
-    const isPassword = bcrypt.compareSync(password, foundUser.password);
-    if (isPassword) {
-      const tokenPayload = {
-        username: foundUser.username,
-        userId: foundUser._id,
-      };
-      const token = jwt.sign(tokenPayload, jwtSecretKey);
-
-      // const token = jwt.sign({ userId }, 'your_secret_key', { expiresIn: '1h' });
-
-      // res.setHeader('Authorization', `Bearer ${token}`);
-      // res.json({ message: 'Login successful' });
-
-      res.cookie("token", token, {sameSite: "none", secure: true}).status(200).json({
-        success: true,
-        userId: foundUser._id,
-        username: foundUser.username,
-      });
-    }
+  const user = await Users.findOne({email});
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "User not Registered",
+    });
   }
 
-  // res.json({success: true});
+  const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({
+      success: false,
+      message: "Incorrect email or password",
+    });
+  }
+
+  const tokenPayload = {
+    // exp: Math.floor(Date.now() / 1000 + 36000),
+    expiresIn: "30d",
+    email: user.email,
+    _id: user._id,
+  };
+  const token = jwt.sign(tokenPayload, jwtSecretKey);
+
+  // const token = jwt.sign({ userId }, 'your_secret_key', { expiresIn: '1h' });
+
+  // also store token in database for verification purpose
+  await Users.findOneAndUpdate({email}, {token});
+
+  //sending token in cookies
+  res.cookie("token", token, {
+    httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
+    secure: true, // Ensures the cookie is sent over HTTPS
+    sameSite: "Strict", // Prevents CSRF attacks
+  });
+
+  //sending token in headers
+  res.setHeader("Authorization", `Bearer ${token}`);
+
+  res.status(201).json({
+    success: true,
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    profilePicture: user.profilePicture,
+  });
 });
 
 const logoutUser = asyncFunction(async (req, res) => {
+  try {
+    const user = await Users.findByIdAndUpdate(req.user._id, {
+      token: "",
+    });
+  } catch (err) {
+    console.log("error while logging out");
+  }
   res.cookie("token", "", {sameSite: "none", secure: true}).status(200).json({
     success: true,
+    message: "Logged out Successfully",
   });
 });
 
+// Get Profile of User
 const profileUser = asyncFunction(async (req, res) => {
-  const token = req.cookies?.token;
-
-  if (token) {
-    jwt.verify(token, jwtSecretKey, {}, (err, userData) => {
-      if (err) {
-        throw err;
-      }
-      // console.log(userData);
-      const {userId, username} = userData;
-
-      res.json(userData);
-    });
-  } else {
-    res.status(401).json({
-      success: false,
-      message: "No token",
-    });
-  }
+  const user = await Users.findOne({email: req.user.email}).select("-password -token");
+  res.status(200).json(user);
 });
 
 const peopleUser = asyncFunction(async (req, res) => {
   const users = await Users.find({}, {_id: 1, username: 1});
   res.json(users);
+});
+
+const searchUsers = asyncFunction(async (req, res) => {
+  // console.log(req);
+  const keyword = req.query.search
+    ? {
+        $or: [
+          {name: {$regex: req.query.search, $options: "i"}},
+          {email: {$regex: req.query.search, $options: "i"}},
+        ],
+      }
+    : {};
+  const users = await Users.find(keyword).find({_id: {$ne: req.user._id}});
+
+  return res.status(200).json({
+    success: true,
+    users,
+  });
 });
 
 module.exports = {
@@ -116,4 +183,5 @@ module.exports = {
   logoutUser,
   profileUser,
   peopleUser,
+  searchUsers,
 };

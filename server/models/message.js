@@ -12,8 +12,13 @@ const messageSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
+    chat: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "chats",
+    },
     text: {
       type: String,
+      trim: true,
     },
     file: {
       type: String,

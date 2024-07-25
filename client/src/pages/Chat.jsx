@@ -10,8 +10,23 @@ import "../styles/chat.css";
 import Avatar from "../components/Avatar";
 import DisplayMessages from "../components/DisplayMessages";
 
+import userIcon from "../assets/icons/userIcon.svg";
+import ProfileDetail from "../components/ProfileDetail";
+import SearchSideBar from "../components/SearchSideBar";
+import GroupChatModal from "../components/GroupChatModal";
+
+import {getSender} from "../config/chatLogics";
+
 const Chat = () => {
   const {username, setUsername, id, setId} = useContext(UserContext);
+
+  // ----------here
+  const {user, setUser, selectedChat, setSelectedChat, chats, setChats} =
+    useContext(UserContext);
+  const [loggedUser, setLoggedUser] = useState({});
+  const [isGroupChatModal, setIsGroupChatModal] = useState(false);
+
+  // ==============
 
   const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
@@ -19,20 +34,22 @@ const Chat = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [messages, setMessages] = useState([]);
   const [newMessageText, setNewMessageText] = useState("");
+  const [isSearchSidebar, setIsSearchSidebar] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const divUnderMessages = useRef();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!id && !username) {
-      navigate("/login");
-    } else {
-      connectToWS();
-    }
+    // if (!id && !username) {
+    //   navigate("/login");
+    // } else {
+    //   connectToWS();
+    // }
   }, [id, username]);
 
   const connectToWS = () => {
-    const ws = new WebSocket("https://talk-to-me-anand.onrender.com");
+    const ws = new WebSocket("http://localhost:5000");
     setWs(ws);
 
     ws.addEventListener("message", handleMessage);
@@ -79,11 +96,13 @@ const Chat = () => {
 
   const handleLogout = () => {
     axios
-      .post("/api/v1/user/logout")
+      .get("/api/v1/user/logout")
       .then(res => {
-        setWs(null);
-        setId("");
-        setUsername("");
+        // setWs(null);
+        // setId("");
+        // setUsername("");
+        setUser({});
+        console.log("logged out");
       })
       .catch(err => {
         console.log(err);
@@ -153,7 +172,7 @@ const Chat = () => {
     }
   }, [messages]);
 
-  // to get offline poeple
+  // to get offline people
   useEffect(() => {
     axios
       .get("/api/v1/user/people/")
@@ -169,7 +188,7 @@ const Chat = () => {
 
         setOfflinePeople(offlinePeople);
       })
-      .catch(err => console.log("ERROR OCUURED, while getting offline people: ", err));
+      .catch(err => console.log("ERROR OCURRED, while getting offline people: ", err));
   }, [onlinePeople]);
 
   // to get the old messages from server
@@ -188,14 +207,71 @@ const Chat = () => {
   );
   // console.log(messagesWithoutDupes);
 
+  // ----------------from here
+  const fetchChats = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    try {
+      const res = await axios.get("/api/v1/chat/", config);
+      console.log(res);
+      setChats(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    setLoggedUser(user);
+    fetchChats();
+  }, []);
+
   return (
     <div className="flex h-screen">
+      {isSearchSidebar && (
+        <SearchSideBar
+          onClick={() => {
+            setIsSearchSidebar(false);
+          }}
+        />
+      )}
+      {/* ---------contact sidebar---------------- */}
       <div className="bg-bg_secondary w-1/3 flex flex-col border-r border-r-[#939185]">
         <Logo />
+        <div className="flex gap-2 mx-6 ">
+          <button
+            onClick={() => {
+              setIsSearchSidebar(true);
+            }}
+            className="border"
+          >
+            search user
+          </button>
+          Icon
+        </div>
+        <button
+          onClick={() => {
+            setIsGroupChatModal(true);
+          }}
+          className="border"
+        >
+          Create group chat
+        </button>
+
+        {isGroupChatModal && (
+          <GroupChatModal
+            onClick={() => {
+              setIsGroupChatModal(false);
+            }}
+          />
+        )}
+
         <div className="flex-grow relative h-full overflow-y-scroll overflow-x-hidden contact-scrollbar">
+          {/* -------------contacts------------ */}
           <div className="absolute top-0 bottom-0 left-0 right-0">
             {/* <div className=""> */}
-            {Object.keys(onlinePeople).map(userId => {
+            {/* {Object.keys(onlinePeople).map(userId => {
               if (onlinePeople[userId] == username) return;
               return (
                 <Contact
@@ -209,8 +285,9 @@ const Chat = () => {
                   selected={userId == selectedUserId}
                 />
               );
-            })}
-            {Object.keys(offlinePeople).map(userId => {
+            })} */}
+
+            {/* {Object.keys(offlinePeople).map(userId => {
               if (offlinePeople[userId] == username) return;
               return (
                 <Contact
@@ -224,27 +301,44 @@ const Chat = () => {
                   selected={userId == selectedUserId}
                 />
               );
-            })}
+            })} */}
+
+            {chats.map(chat => (
+              <Contact
+                key={chat._id}
+                online={false}
+                userId={chat._id}
+                username={!chat.isGroupChat ? getSender(user, chat.users) : chat.chatName}
+                onClick={() => {}}
+                selected={false}
+              />
+            ))}
+
             {/* </div> */}
           </div>
         </div>
 
+        {/* -------------Logged in user----------- */}
         <div className="flex items-center justify-center gap-5 px-1 py-4 bg-primary_color">
-          <span className="text-sm text-[#F9DBBB] flex items-center gap-1 p-2 select-none cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#FFF455"
-              className="size-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <span
+            onClick={() => {
+              setShowProfile(true);
+            }}
+            className="text-sm text-[#F9DBBB] flex items-center gap-1 p-2 select-none cursor-pointer"
+          >
+            <img src={userIcon} alt="" className="w-5" />
             {username}
           </span>
+          {showProfile && (
+            <ProfileDetail
+              onClick={() => {
+                setShowProfile(false);
+              }}
+              name={"Anand Prakash"}
+              email={"anandprakash@gmail.com"}
+              image={userIcon}
+            />
+          )}
           <button
             onClick={handleLogout}
             className="text-sm bg-[#24262b] text-[#dcb5e9] font-semibold py-1 px-2 rounded-lg hover:bg-[#2E4F4F] hover:text-white transition-all duration-300"
@@ -254,6 +348,7 @@ const Chat = () => {
         </div>
       </div>
 
+      {/* ----------messages--------------- */}
       <div className="flex flex-col bg-[#686D76] w-2/3 ">
         {selectedUserId && (
           <div className="flex items-center justify-between gap-1 bg-[#373A40] p-2">
