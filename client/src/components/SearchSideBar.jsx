@@ -99,20 +99,23 @@ const SearchSideBar = ({onClick}) => {
       </div>
       {errorMsg && <div className="text-sm mx-3 text-red-500">{errorMsg}!</div>}
 
-      {searchResult &&
-        searchResult.map(user => (
-          <Contact
-            key={user._id}
-            online={false}
-            userId={user._id}
-            username={user.name}
-            onClick={() => {
-              accessChat(user._id);
-              onClick();
-            }}
-            selected={false}
-          />
-        ))}
+      <div className="mt-5 bg-gray-700">
+        {searchResult &&
+          searchResult.map(user => (
+            <Contact
+              key={user._id}
+              online={false}
+              userId={user._id}
+              username={user.name}
+              email={user.email}
+              onClick={() => {
+                accessChat(user._id);
+                onClick();
+              }}
+              selected={false}
+            />
+          ))}
+      </div>
 
       {/* </div> */}
     </div>,

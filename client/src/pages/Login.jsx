@@ -132,7 +132,7 @@ const Login = () => {
   }
 
   return (
-    <div className="h-screen flex items-center justify-center bg-bg_primary relative">
+    <div className="h-screen flex items-center justify-center bg-bg_primary_dark relative">
       {popup && (
         <Popup
           onClick={() => {
@@ -142,7 +142,7 @@ const Login = () => {
           title={popupMsg.title}
         />
       )}
-      <div className="bg-bg_secondary p-3 rounded-lg flex flex-col gap-3 absolute top-10">
+      <div className="bg-bg_primary_lite p-3 rounded-lg flex flex-col gap-3 absolute top-10">
         <Logo />
         <div className="flex justify-evenly items-center my-4 text-white gap-1">
           <Link

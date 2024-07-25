@@ -17,8 +17,8 @@ export default {
         secondary_color: "#E3FEF7",
         logo_color: "#DC5F00",
 
-        bg_primary: "#003C43",
-        bg_secondary: "#135D66",
+        bg_primary_dark: "#003C43",
+        bg_primary_lite: "#135D66",
         bg_input: "#E3FEF7",
       },
       screens: {

@@ -3,7 +3,7 @@ import React from "react";
 const Popup = ({onClick, title, text}) => {
   return (
     <div className="fixed bg-gray-950 w-full h-screen z-40 bg-opacity-65 flex items-center justify-center transition-all duration-300">
-      <div className="absolute w-96 bg-[#135D66] rounded-lg z-50">
+      <div className="absolute w-96 bg-bg_primary_lite rounded-lg z-50">
         <div className="relative">
           <div
             onClick={onClick}

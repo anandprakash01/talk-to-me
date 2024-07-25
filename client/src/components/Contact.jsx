@@ -1,7 +1,7 @@
 import React from "react";
 import Avatar from "./Avatar";
 
-const Contact = ({userId, username, selected, onClick, online}) => {
+const Contact = ({userId, username, email, selected, onClick, online}) => {
   return (
     <div
       onClick={onClick}
@@ -15,7 +15,15 @@ const Contact = ({userId, username, selected, onClick, online}) => {
 
       <div className="flex gap-2 py-2 pl-5 items-center capitalize">
         <Avatar online={online} username={username} userId={userId} />
-        <span className="text-white">{username}</span>
+        <div className="flex flex-col">
+          <span className="text-white">{username}</span>
+          {email && (
+            <div>
+              <span className="text-xs font-bold text-gray-800">Email: </span>
+              <span className="text-xs text-gray-800">{email}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

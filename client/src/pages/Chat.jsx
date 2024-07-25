@@ -23,6 +23,7 @@ const Chat = () => {
   // ----------here
   const {user, setUser, selectedChat, setSelectedChat, chats, setChats} =
     useContext(UserContext);
+
   const [loggedUser, setLoggedUser] = useState({});
   const [isGroupChatModal, setIsGroupChatModal] = useState(false);
 
@@ -39,6 +40,28 @@ const Chat = () => {
   const divUnderMessages = useRef();
 
   const navigate = useNavigate();
+
+  const fetchChats = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    try {
+      const res = await axios.get("/api/v1/chat/", config);
+      // console.log(res);
+      setChats(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    setLoggedUser(user);
+    fetchChats();
+  }, []);
+
+  // -------------old---------------
 
   useEffect(() => {
     // if (!id && !username) {
@@ -103,6 +126,7 @@ const Chat = () => {
         // setUsername("");
         setUser({});
         console.log("logged out");
+        navigate("/login");
       })
       .catch(err => {
         console.log(err);
@@ -207,26 +231,6 @@ const Chat = () => {
   );
   // console.log(messagesWithoutDupes);
 
-  // ----------------from here
-  const fetchChats = async () => {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-      },
-    };
-    try {
-      const res = await axios.get("/api/v1/chat/", config);
-      console.log(res);
-      setChats(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  useEffect(() => {
-    setLoggedUser(user);
-    fetchChats();
-  }, []);
-
   return (
     <div className="flex h-screen">
       {isSearchSidebar && (
@@ -237,7 +241,7 @@ const Chat = () => {
         />
       )}
       {/* ---------contact sidebar---------------- */}
-      <div className="bg-bg_secondary w-1/3 flex flex-col border-r border-r-[#939185]">
+      <div className="bg-bg_primary_lite w-1/3 flex flex-col border-r border-r-[#939185]">
         <Logo />
         <div className="flex gap-2 mx-6 ">
           <button
@@ -250,6 +254,7 @@ const Chat = () => {
           </button>
           Icon
         </div>
+        <div>notification</div>
         <button
           onClick={() => {
             setIsGroupChatModal(true);
