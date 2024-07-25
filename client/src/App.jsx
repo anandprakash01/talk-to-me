@@ -18,7 +18,7 @@ import Error from "./pages/Error";
 import Chat from "./pages/Chat";
 
 function App() {
-  axios.defaults.baseURL = "https://talk-to-mee.netlify.app";
+  axios.defaults.baseURL = "https://talk-to-me-anand.onrender.com";
   axios.defaults.withCredentials = true;
 
   const router = createBrowserRouter(
