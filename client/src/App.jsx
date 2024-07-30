@@ -18,7 +18,7 @@ import Error from "./pages/Error";
 import Chat from "./pages/Chat";
 
 function App() {
-  axios.defaults.baseURL = "https://talk-to-me-anand.onrender.com";
+  axios.defaults.baseURL = "http://localhost:5000";
   axios.defaults.withCredentials = true;
 
   const router = createBrowserRouter(

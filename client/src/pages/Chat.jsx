@@ -11,18 +11,29 @@ import Avatar from "../components/Avatar";
 import DisplayMessages from "../components/DisplayMessages";
 
 import userIcon from "../assets/icons/userIcon.svg";
-import ProfileDetail from "../components/ProfileDetail";
+import notificationIcon from "../assets/icons/notificationIcon.svg";
+import phoneCallIcon from "../assets/icons/phoneCall.svg";
+import ProfileDetail from "../components/ProfileDetailModal";
 import SearchSideBar from "../components/SearchSideBar";
-import GroupChatModal from "../components/GroupChatModal";
+import GroupCreateModal from "../components/GroupCreateModal";
 
 import {getSender} from "../config/chatLogics";
+import GroupUpdateModal from "../components/GroupUpdateModal";
 
 const Chat = () => {
   const {username, setUsername, id, setId} = useContext(UserContext);
 
   // ----------here
-  const {user, setUser, selectedChat, setSelectedChat, chats, setChats} =
-    useContext(UserContext);
+  const {
+    user,
+    setUser,
+    selectedChat,
+    setSelectedChat,
+    chats,
+    setChats,
+    fetchAgain,
+    setFetchAgain,
+  } = useContext(UserContext);
 
   const [loggedUser, setLoggedUser] = useState({});
   const [isGroupChatModal, setIsGroupChatModal] = useState(false);
@@ -37,6 +48,7 @@ const Chat = () => {
   const [newMessageText, setNewMessageText] = useState("");
   const [isSearchSidebar, setIsSearchSidebar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSenderProfile, setShowSenderProfile] = useState(false);
   const divUnderMessages = useRef();
 
   const navigate = useNavigate();
@@ -59,7 +71,7 @@ const Chat = () => {
   useEffect(() => {
     setLoggedUser(user);
     fetchChats();
-  }, []);
+  }, [fetchAgain]);
 
   // -------------old---------------
 
@@ -252,7 +264,17 @@ const Chat = () => {
           >
             search user
           </button>
-          Icon
+          <button
+            onClick={() => {}}
+            className="border h-7 w-7 text-white bg-white rounded-full"
+          >
+            <div className="relative">
+              <div className="h-4 w-4 bg-red-600 absolute left-4 -top-1 rounded-full text-xs">
+                {5}
+              </div>
+            </div>
+            <img src={notificationIcon} className="text-white" />
+          </button>
         </div>
         <div>notification</div>
         <button
@@ -265,7 +287,7 @@ const Chat = () => {
         </button>
 
         {isGroupChatModal && (
-          <GroupChatModal
+          <GroupCreateModal
             onClick={() => {
               setIsGroupChatModal(false);
             }}
@@ -273,7 +295,7 @@ const Chat = () => {
         )}
 
         <div className="flex-grow relative h-full overflow-y-scroll overflow-x-hidden contact-scrollbar">
-          {/* -------------contacts------------ */}
+          {/* -------------contacts/chats------------ */}
           <div className="absolute top-0 bottom-0 left-0 right-0">
             {/* <div className=""> */}
             {/* {Object.keys(onlinePeople).map(userId => {
@@ -313,8 +335,12 @@ const Chat = () => {
                 key={chat._id}
                 online={false}
                 userId={chat._id}
-                username={!chat.isGroupChat ? getSender(user, chat.users) : chat.chatName}
-                onClick={() => {}}
+                username={
+                  !chat.isGroupChat ? getSender(user, chat.users).name : chat.chatName
+                }
+                onClick={() => {
+                  setSelectedChat(chat);
+                }}
                 selected={false}
               />
             ))}
@@ -332,15 +358,16 @@ const Chat = () => {
             className="text-sm text-[#F9DBBB] flex items-center gap-1 p-2 select-none cursor-pointer"
           >
             <img src={userIcon} alt="" className="w-5" />
-            {username}
+            {user.name}
           </span>
           {showProfile && (
             <ProfileDetail
               onClick={() => {
                 setShowProfile(false);
               }}
-              name={"Anand Prakash"}
-              email={"anandprakash@gmail.com"}
+              name={user.name}
+              email={user.email}
+              userId={user._id}
               image={userIcon}
             />
           )}
@@ -355,23 +382,65 @@ const Chat = () => {
 
       {/* ----------messages--------------- */}
       <div className="flex flex-col bg-[#686D76] w-2/3 ">
-        {selectedUserId && (
+        {selectedChat && (
           <div className="flex items-center justify-between gap-1 bg-[#373A40] p-2">
-            <Avatar userId={selectedUserId} username={username} />
-            <div className="flex capitalize font-semibold text-white text-lg">
-              {onlinePeople[selectedUserId] || offlinePeople[selectedUserId]}
+            {showSenderProfile &&
+              (selectedChat.isGroupChat ? (
+                <GroupUpdateModal
+                  onClick={() => {
+                    setShowSenderProfile(false);
+                  }}
+                />
+              ) : (
+                <ProfileDetail
+                  onClick={() => {
+                    setShowSenderProfile(false);
+                  }}
+                  name={getSender(user, selectedChat.users).name}
+                  email={getSender(user, selectedChat.users).email}
+                  userId={selectedChat._id}
+                />
+              ))}
+            <div
+              onClick={() => {
+                setShowSenderProfile(true);
+              }}
+              className="rounded-full cursor-pointer"
+            >
+              <Avatar
+                onClick={() => {}}
+                size="10"
+                userId={selectedChat._id}
+                username={
+                  selectedChat.isGroupChat
+                    ? selectedChat.chatName
+                    : getSender(user, selectedChat.users).name
+                }
+              />
             </div>
-            <div className=""></div>
+            <div className="flex capitalize font-semibold text-white text-lg">
+              {selectedChat.isGroupChat
+                ? selectedChat.chatName
+                : getSender(user, selectedChat.users).name}
+            </div>
+            <button onClick={() => {}} className="h-5 w-5 text-white  rounded-full">
+              <div className="relative">
+                <div className="h-4 w-4 bg-red-600 absolute left-2 -top-3 rounded-full text-xs">
+                  {5}
+                </div>
+              </div>
+              <img src={phoneCallIcon} className="text-white" />
+            </button>
           </div>
         )}
         <div className="flex-grow">
-          {!selectedUserId && (
+          {!selectedChat && (
             <div className="h-full flex items-center justify-center">
               <div className="text-gray-400">&larr; Select a contact from sidebar</div>
             </div>
           )}
 
-          {selectedUserId && (
+          {selectedChat && (
             <div className="relative h-full">
               <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-1 message-scrollbar px-2">
                 {messagesWithoutDupes.map(msg => {
@@ -391,7 +460,7 @@ const Chat = () => {
           )}
         </div>
 
-        {selectedUserId && (
+        {selectedChat && (
           <form onSubmit={sendMessage} className="flex gap-2 p-3 bg-primary_color ">
             <input
               type="text"

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Avatar = ({username, userId, online}) => {
+const Avatar = ({username, userId, online, onClick, size = "10"}) => {
   const colors = [
     "bg-red-300",
     "bg-blue-300",
@@ -22,9 +22,10 @@ const Avatar = ({username, userId, online}) => {
 
   return (
     <div
-      className={`w-10 h-10 relative rounded-full flex items-center justify-center ${color}`}
+      onClick={onClick}
+      className={`w-${size} h-${size} relative rounded-full flex items-center justify-center ${color}`}
     >
-      <div className="w-full text-center font-semibold capitalize opacity-50">
+      <div className="w-full text-center font-semibold capitalize opacity-50 text-lg">
         {username[0]}
       </div>
       {online && (

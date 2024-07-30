@@ -6,8 +6,9 @@ export const UserContext = createContext({});
 
 export const UserContextProvider = ({children}) => {
   const [user, setUser] = useState({});
-  const [selectedChat, setSelectedChat] = useState({});
   const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(); //object
+  const [fetchAgain, setFetchAgain] = useState(false);
 
   useEffect(() => {
     axios
@@ -31,10 +32,12 @@ export const UserContextProvider = ({children}) => {
       value={{
         user,
         setUser,
-        selectedChat,
-        setSelectedChat,
         chats,
         setChats,
+        selectedChat,
+        setSelectedChat,
+        fetchAgain,
+        setFetchAgain,
       }}
     >
       {children}
