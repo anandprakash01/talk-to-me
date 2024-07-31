@@ -4,6 +4,7 @@ const router = new express.Router();
 
 const messageController = require("../controllers/message.js");
 
-router.get("/:userId", messageController.getMessages);
+router.post("/", messageController.sendMessages);
+router.get("/:chatId", messageController.getMessages);
 
 module.exports = router;

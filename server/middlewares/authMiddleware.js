@@ -12,6 +12,7 @@ const authMiddleware = asyncFunction(async (req, res, next) => {
   //   ? req.headers.authorization.split(" ")[1]
   //   : null;
   const token = req.cookies?.token;
+  // console.log(token);
 
   // 400=>Bad request
   // 401=> Unauthorized

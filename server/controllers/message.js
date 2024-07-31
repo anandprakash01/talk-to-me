@@ -5,6 +5,10 @@ const {asyncFunction} = require("../utils/helper");
 
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
 
+const sendMessages = asyncFunction(async (req, res) => {
+  const {userId} = req.body;
+});
+
 const getMessages = asyncFunction(async (req, res) => {
   const {userId} = req.params;
   const token = req.cookies?.token;
@@ -41,4 +45,5 @@ const getMessages = asyncFunction(async (req, res) => {
 
 module.exports = {
   getMessages,
+  sendMessages,
 };

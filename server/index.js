@@ -12,8 +12,10 @@ dotenv.config(); // this should be above before the modules/files are imported t
 
 const connectDB = require("./config/db.js");
 const Messages = require("./models/message.js");
+
 const userRoutes = require("./routes/user.js");
 const chatRoutes = require("./routes/chat.js");
+const messageRoutes = require("./routes/message.js");
 const {notFound, errorHandler} = require("./middlewares/error.js");
 const authMiddleware = require("./middlewares/authMiddleware.js");
 
@@ -32,6 +34,7 @@ app.use(cors({credentials: true, origin: process.env.FRONTEND_URL}));
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/chat", authMiddleware, chatRoutes);
+app.use("/api/v1/message", authMiddleware, messageRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

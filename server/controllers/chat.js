@@ -62,6 +62,7 @@ const accessChats = asyncFunction(async (req, res) => {
     }
   }
 });
+
 const fetchChats = asyncFunction(async (req, res) => {
   try {
     let chats = await Chat.find({
