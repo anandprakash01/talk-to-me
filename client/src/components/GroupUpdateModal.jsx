@@ -19,7 +19,7 @@ const GroupUpdateModal = ({onClick}) => {
 
   const handleRemoveUser = async userToRemove => {
     if (selectedChat.groupAdmin._id !== user._id && userToRemove._id !== user._id) {
-      console.log("only admid can remove");
+      console.log("only admin can remove");
       return;
     }
     try {
