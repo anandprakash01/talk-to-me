@@ -7,8 +7,9 @@ const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const {Server} = require("socket.io");
 
-dotenv.config(); // this should be above before the modules/files are imported then only it will get the variables
+dotenv.config(); // this should be above, before the modules/files are imported then only it will get the variables
 
 const connectDB = require("./config/db.js");
 const Messages = require("./models/message.js");
@@ -18,6 +19,7 @@ const chatRoutes = require("./routes/chat.js");
 const messageRoutes = require("./routes/message.js");
 const {notFound, errorHandler} = require("./middlewares/error.js");
 const authMiddleware = require("./middlewares/authMiddleware.js");
+const createWebSocketServer = require("./services/webSocket.js");
 
 connectDB();
 
@@ -41,7 +43,7 @@ app.use(errorHandler);
 
 // ========================Deployment===================
 
-const __dirname1 = path.resolve();
+const __dirname1 = path.resolve(); //current working dir
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname1, "/client/dist")));
   app.get("*", (req, res) => {
@@ -49,163 +51,64 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// ========================Deployment===================
+// ==================================================
 
 const server = app.listen(port, () => {
-  console.log(`Server is up and running at: ${port}`.blue.bold);
+  console.log(`Server is up and running at: ${port}`.bgRed);
 });
-
 // console.log("server: ", server);
 
-//WebSocket Server
-const wss = new ws.WebSocketServer({server});
-// const wss = new ws.WebSocketServer({noServer: true});
+// ====================Socket.IO Server
 
-// server.on("upgrade", (request, socket, head) => {
-//   // Check for cookies in the request headers
-//   const cookies = request.headers.cookie;
-
-//   if (cookies) {
-//     // Parse and validate cookies
-//     // If valid, proceed with the WebSocket connection
-//     wss.handleUpgrade(request, socket, head, function done(ws) {
-//       wss.emit("connection", ws, request);
-//     });
-//   } else {
-//     // No cookies present, terminate the connection
-//     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
-//     socket.destroy();
-//     console.log("WebSocket connection terminated: No cookies passed");
-//   }
-
-//   // wsServer.handleUpgrade(request, socket, head, socket => {
-//   //   wsServer.emit("connection", socket, request);
-//   // });
-// });
-
-wss.on("connection", (connection, req) => {
-  // console.log("WSS connected");
-  // connection.send("Hey:)");
-  // console.log(req.headers);
-
-  //read username and id from the cookie for this connection
-  const cookies = req.headers.cookie;
-  if (cookies) {
-    const tokenCookieString = cookies.split(";").find(str => str.startsWith("token="));
-
-    if (tokenCookieString) {
-      const token = tokenCookieString.split("=")[1];
-      if (token) {
-        // console.log(token);
-        // verify JWT
-        jwt.verify(token, jwtSecretKey, {}, (err, userData) => {
-          if (err) {
-            // console.error("Token verification failed while connecting:", err);
-
-            // for invalid token
-            connection.send(JSON.stringify({error: "Invalid token"}));
-            connection.terminate();
-            return;
-          }
-          // console.log(userData);
-          const {userId, username} = userData;
-          connection.userId = userId;
-          connection.username = username;
-        });
-      }
-    }
-    // console.log(tokenCookieString);
-  }
-  connection.isAlive = true;
-
-  const notifyAboutOnlinePeople = () => {
-    // notify everyone about online people
-    // console.log([...wss.clients].map(c => c.userId));
-    [...wss.clients].forEach(client => {
-      // this client is the same as connection but this will give store the all the online clients
-      client.send(
-        JSON.stringify({
-          online: [...wss.clients].map(c => ({
-            userId: c.userId,
-            username: c.username,
-          })),
-        })
-      );
-    });
-  };
-
-  // Sending a ping to the client every 5 seconds
-  connection.timer = setInterval(() => {
-    connection.ping(); //every 5 sec it will ping to client
-    connection.deathTimer = setTimeout(() => {
-      // console.log("dead");
-      connection.isAlive = false;
-      clearInterval(connection.timer);
-      connection.terminate();
-      notifyAboutOnlinePeople();
-    }, 3000);
-  }, 10000);
-
-  connection.on("pong", () => {
-    // after receiving the pong message this will clear deathTimer
-    clearTimeout(connection.deathTimer);
-  });
-
-  // to receive the message
-  connection.on("message", async (messageData, isBinary) => {
-    // console.log(msg, isBinary);
-    // console.log(messageData.toString());
-
-    messageData = JSON.parse(messageData.toString());
-
-    const {recipient, text, file} = messageData;
-    let filename = null;
-    if (file) {
-      // console.log("size: ", file.data.length);
-
-      //changing file name and saving it
-      const parts = file.name.split(".");
-      const ext = parts[parts.length - 1]; //extension
-      filename = Date.now() + "." + ext;
-      const path = __dirname + "/uploads/" + filename;
-      // const bufferData = new Buffer(file.data, "base64");
-
-      // console.log(file.data);
-      // we need to remove the front [data:{type};base64,{filedata}]
-      const bufferData = Buffer.from(file.data.split(",")[1], "base64");
-
-      fs.writeFile(path, bufferData, () => {
-        console.log("file saved: " + path);
-      });
-    }
-
-    if (recipient && (text || file)) {
-      //create message in database
-      const messageDoc = await Messages.create({
-        sender: connection.userId,
-        recipient,
-        text,
-        file: file ? filename : null,
-      });
-
-      // sent message to other person
-      // user can be logged in to many devices
-      [...wss.clients]
-        .filter(c => c.userId === recipient && c.isAlive)
-        .forEach(c => {
-          c.send(
-            JSON.stringify({
-              text,
-              file: file ? filename : null,
-              sender: connection.userId,
-              recipient,
-              _id: messageDoc._id,
-            })
-          );
-        });
-    }
-  });
-
-  //notify everyone about online people
-  notifyAboutOnlinePeople();
+// const io = require("socket.io")(server, {
+// configure Socket.IO options directly during initialization
+const io = new Server(server, {
+  pingTimeout: 60000, //60 sec
+  cors: {
+    origin: process.env.FRONTEND_URL,
+  },
 });
+
+io.on("connection", socket => {
+  console.log("Connected to socket.io");
+
+  // create separate room for the user
+  socket.on("setup", userData => {
+    console.log(`UserId to create room for ${userData.name}: ${userData._id}`);
+    socket.join(userData._id);
+    socket.emit("connected");
+  });
+
+  socket.on("join chat", room => {
+    socket.join(room);
+    console.log("User Joined Room: " + room);
+  });
+
+  socket.on("typing", room => {
+    socket.in(room).emit("typing");
+  });
+  socket.on("stop typing", room => {
+    socket.in(room).emit("stop typing");
+  });
+
+  socket.on("new message", newMessageReceived => {
+    var chat = newMessageReceived.chat;
+    if (!chat.users) {
+      return console.log("chat.users not defined");
+    }
+
+    chat.users.forEach(user => {
+      if (user._id == newMessageReceived.sender._id) return;
+
+      socket.in(user._id).emit("message received", newMessageReceived);
+    });
+  });
+
+  socket.off("setup", () => {
+    console.log("User Disconnected");
+    socket.leave(userData._id);
+  });
+});
+
+// ====================WebSocketServer
+// const wss = createWebSocketServer(server);

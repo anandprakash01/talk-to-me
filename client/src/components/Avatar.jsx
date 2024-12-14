@@ -25,7 +25,12 @@ const Avatar = ({username, userId, online, onClick, size = "10"}) => {
       onClick={onClick}
       className={`w-${size} h-${size} relative rounded-full flex items-center justify-center ${color}`}
     >
-      <div className="w-full text-center font-semibold capitalize opacity-50 text-lg">
+      <div
+        className={`w-full text-center font-semibold capitalize opacity-50 select-none  ${
+          size < 5 ? "text-xs" : "text-lg"
+        }
+        `}
+      >
         {username[0]}
       </div>
       {online && (

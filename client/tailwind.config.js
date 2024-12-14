@@ -19,6 +19,10 @@ export default {
 
         bg_primary_dark: "#003C43",
         bg_primary_lite: "#135D66",
+        icon_color: "#FFCCE1",
+        // icon_color: "#FFE31A",
+        // icon_color: "#C0EBA6",
+
         bg_input: "#E3FEF7",
       },
       screens: {

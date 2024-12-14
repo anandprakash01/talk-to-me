@@ -1,19 +1,31 @@
-import React, {useEffect, useRef} from "react";
-import Avatar from "./Avatar";
 import axios from "axios";
+import PropTypes from "prop-types";
+import {isLastMessage, isSameSender} from "../config/chatLogics";
+import Avatar from "./Avatar";
 
-const DisplayMessages = ({id, sender, text, file}) => {
+const DisplayMessages = ({messages, message, userId, i}) => {
+  const {sender, content, file} = message;
   return (
     <div
-      className={"break-all " + (sender === id ? "text-right ml-20" : "text-left mr-20")}
+      className={
+        "break-all " + (sender._id === userId ? "text-right ml-20" : "text-left mr-20")
+      }
     >
+      {/* {isSameSender(message, i, userId) ||
+        (isLastMessage(message, i, userId) && )} */}
+
+      {/* {sender._id !== userId && (
+        <Avatar username={sender.name} userId={sender._id} size="5" />
+      )} */}
       <div
         className={
-          "inline-block p-2 my-1 rounded-md text-sm text-left " +
-          (sender === id ? "bg-[#4f5c5e] text-[#FBF9F1]" : "bg-[#B4B4B8] text-[#0f1114]")
+          "inline-block p-2 my-1 rounded-md text-sm  " +
+          (sender._id === userId
+            ? "bg-[#3695a1] text-[#FBF9F1]"
+            : "bg-[#37a8c2] text-[#0f1114]")
         }
       >
-        {text}
+        {content}
         {file && (
           <div className="">
             <a
@@ -38,8 +50,18 @@ const DisplayMessages = ({id, sender, text, file}) => {
           </div>
         )}
       </div>
+      {(isSameSender(messages, message, i, userId) ||
+        isLastMessage(messages, i, userId)) &&
+        sender._id !== userId && (
+          <Avatar username={sender.name} userId={sender._id} size="4" />
+        )}
     </div>
   );
+};
+
+DisplayMessages.propTypes = {
+  message: PropTypes.object.isRequired,
+  userId: PropTypes.string.isRequired,
 };
 
 export default DisplayMessages;

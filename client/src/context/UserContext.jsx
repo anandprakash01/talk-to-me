@@ -9,6 +9,9 @@ export const UserContextProvider = ({children}) => {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(); //object
   const [fetchAgain, setFetchAgain] = useState(false);
+  const [notification, setNotification] = useState([]);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
@@ -16,7 +19,7 @@ export const UserContextProvider = ({children}) => {
       .then(response => {
         // console.log(response);
         setUser(response.data);
-
+        setLoading(false);
         // setUserName(response.data.name);
         // setId(response.data._id);
         // setUserEmail(response.data.email);
@@ -24,8 +27,12 @@ export const UserContextProvider = ({children}) => {
       })
       .catch(err => {
         console.log("can not get User details, error message:", err);
+        setLoading(false);
       });
   }, []);
+
+  // if (loading) return <div>Loading...</div>;
+  // Display loading state while fetching data
 
   return (
     <UserContext.Provider
@@ -38,6 +45,8 @@ export const UserContextProvider = ({children}) => {
         setSelectedChat,
         fetchAgain,
         setFetchAgain,
+        notification,
+        setNotification,
       }}
     >
       {children}

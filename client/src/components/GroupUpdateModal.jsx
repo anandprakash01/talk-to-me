@@ -152,13 +152,13 @@ const GroupUpdateModal = ({onClick}) => {
             />
           </div>
           {/* ==========Group members========== */}
-          <div className="flex gap-1 p-1 flex-wrap">
+          <div className="flex gap-1 p-1 mb-3 flex-wrap">
             {selectedChat.users.map(u => (
               <div
                 key={u._id}
-                className="border rounded-md px-1 flex items-center justify-center gap-1"
+                className="bg-bg_primary_dark rounded-md px-1 flex items-center justify-center gap-1"
               >
-                <p className="text-sm">
+                <p className="text-sm text-white">
                   {user._id === u._id ? (
                     <span className="font-medium"> You </span>
                   ) : (
@@ -207,9 +207,6 @@ const GroupUpdateModal = ({onClick}) => {
                 placeholder="Rename Group"
                 className="w-full p-1 rounded-md bg-bg_input border outline-none focus-within:border-yellow-500"
               />
-              <button onClick={handleRename} className="border rounded-md px-1">
-                Rename
-              </button>
             </div>
             <input
               value={search}
@@ -217,16 +214,22 @@ const GroupUpdateModal = ({onClick}) => {
                 setSearch(e.target.value);
                 handleSearch(e.target.value);
               }}
-              placeholder="Add Users to Group"
+              placeholder="Add more users to group"
               className="w-full p-1 my-1 rounded-md bg-bg_input border outline-none focus-within:border-yellow-500"
             />
           </Form>
-          <div className="flex justify-end mt-3">
+          <div className="flex gap-4 justify-end items-center mt-3">
+            <button
+              onClick={handleRename}
+              className="rounded-md px-2 text-white bg-green-500 hover:bg-green-600 transition-all duration-300"
+            >
+              Update
+            </button>
             <button
               onClick={() => {
                 handleRemoveUser(user);
               }}
-              className="bg-red-600 text-white rounded-sm px-2 cursor-pointer hover:bg-red-700"
+              className="bg-red-500 text-white rounded-md px-2 cursor-pointer hover:bg-red-600 transition-all duration-300"
             >
               Leave Group
             </button>

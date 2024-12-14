@@ -7,22 +7,22 @@ const messageSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
-    recipient: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
+    content: {
+      type: String,
       required: true,
+      trim: true,
     },
     chat: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "chats",
     },
-    text: {
-      type: String,
-      trim: true,
-    },
-    file: {
-      type: String,
-    },
+    // text: {
+    //   type: String,
+    //   trim: true,
+    // },
+    // file: {
+    //   type: String,
+    // },
   },
   {timestamps: true}
 );

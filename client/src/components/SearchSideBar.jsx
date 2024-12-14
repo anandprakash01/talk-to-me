@@ -13,7 +13,7 @@ const SearchSideBar = ({onClick}) => {
 
   const {user, selectedChat, setSelectedChat, chats, setChats} = useContext(UserContext);
 
-  const handleSearch = async () => {
+  const handleSearch = async search => {
     if (!search) {
       setErrorMsg("Please write to search");
       setSearchResult([]);
@@ -33,6 +33,7 @@ const SearchSideBar = ({onClick}) => {
       setSearchResult(response.data.users);
     } catch (err) {
       console.log(err);
+      // show no users or please try again message in UI..... (pending)
     }
   };
 
@@ -83,23 +84,23 @@ const SearchSideBar = ({onClick}) => {
         </svg>
       </div>
       {/* </div> */}
-      <h1 className="py-4 text-center font-bold text-lg">Search Users</h1>
+      <h1 className="mt-5 py-4 text-center font-medium text-lg">
+        Search user to message
+      </h1>
       <div className="flex gap-2 items-center">
         <input
-          value={search}
           onChange={e => {
             setSearch(e.target.value);
+            handleSearch(e.target.value);
           }}
+          value={search}
           placeholder="Search"
-          className="border h-10 bg-bg_input mx-2 p-3 rounded-md w-2/3"
+          className="mx-5 w-full border h-9 bg-bg_input p-3 rounded-md outline-none focus-within:border-yellow-500"
         />
-        <button onClick={handleSearch} className="border h-10 p-2 rounded-md">
-          click
-        </button>
       </div>
       {errorMsg && <div className="text-sm mx-3 text-red-500">{errorMsg}!</div>}
 
-      <div className="mt-5 bg-gray-700">
+      <div className="mt-5 bg-bg_primary_lite">
         {searchResult &&
           searchResult.map(user => (
             <Contact

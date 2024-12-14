@@ -6,9 +6,9 @@ const Contact = ({userId, username, email, selected, onClick, online}) => {
     <div
       onClick={onClick}
       className={
-        "transition-all duration-300 hover:bg-[#232D3F] " +
-        "border-b border-gray-800 flex items-center gap-2 cursor-pointer " +
-        (selected ? "bg-[#2E4F4F]" : "")
+        "transition-all duration-300 hover:bg-bg_primary_dark " +
+        " flex items-center gap-2 cursor-pointer " +
+        (selected ? "bg-bg_primary_dark" : "")
       }
     >
       {selected && <div className="w-1 bg-[#E19898] h-12 rounded-r-md absolute"></div>}

@@ -6,6 +6,7 @@ import axios from "axios";
 import Contact from "./Contact";
 import Avatar from "./Avatar";
 import Popup from "./Popup";
+import CloseIcon from "../assets/icons/CloseIcon";
 
 const GroupCreateModal = ({onClick, title, text}) => {
   const {user, chats, setChats} = useContext(UserContext);
@@ -75,20 +76,7 @@ const GroupCreateModal = ({onClick, title, text}) => {
             onClick={onClick}
             className="absolute bg-red-600 text-white right-1 top-1 px-2 py-1 rounded-md cursor-pointer hover:bg-red-700"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
+            <CloseIcon />
           </div>
         </div>
         <h1 className="text-center mx-auto p-2 text-lg font-bold text-emerald-200">
@@ -102,7 +90,7 @@ const GroupCreateModal = ({onClick, title, text}) => {
               }}
               value={groupChatName}
               placeholder="Group Name"
-              className="border text-black w-full"
+              className="text-black h-9 w-full rounded-lg p-2 bg-bg_input border outline-none focus-within:border-yellow-500"
             />
             <input
               onChange={e => {
@@ -111,15 +99,18 @@ const GroupCreateModal = ({onClick, title, text}) => {
               }}
               value={search}
               placeholder="Add Users eg: Anand, Raj"
-              className="border text-black w-full"
+              className="text-black h-9 w-full rounded-lg p-2 bg-bg_input border outline-none focus-within:border-yellow-500"
             />
           </form>
 
-          {/* ============selected Users========= */}
-          <div className="flex gap-1 p-1 flex-wrap">
+          {/* ====================selected Users */}
+          <div className="flex gap-1 mx-1 p-1 flex-wrap">
             {selectedUsers.map(u => (
               // <Avatar key={u._id} userId={u._id} username={u.name} />
-              <div key={u._id} className="border rounded-md px-1 flex items-center gap-1">
+              <div
+                key={u._id}
+                className="rounded-md px-1 flex items-center gap-1 bg-bg_primary_dark"
+              >
                 <p className="text-sm">{u.name}</p>
                 <span
                   onClick={() => {
@@ -174,7 +165,7 @@ const GroupCreateModal = ({onClick, title, text}) => {
                     setSelectedUsers([...selectedUsers, u]);
                   }}
                   key={u._id}
-                  className="transition-all duration-300 hover:bg-[#232D3F] border-b border-gray-800 flex items-center gap-2 cursor-pointer "
+                  className="transition-all duration-300 hover:bg-bg_primary_dark border-b border-gray-700 flex items-center gap-2 cursor-pointer "
                 >
                   {/* {selected && (
                     <div className="w-1 bg-[#E19898] h-12 rounded-r-md absolute"></div>
@@ -182,7 +173,7 @@ const GroupCreateModal = ({onClick, title, text}) => {
 
                   <div className="flex gap-2 py-2 pl-5 items-center capitalize">
                     <Avatar online={false} username={u.name} userId={u._id} />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col items-start">
                       <span className="text-white">{u.name}</span>
                       {u.email && (
                         <div>
@@ -196,7 +187,10 @@ const GroupCreateModal = ({onClick, title, text}) => {
               );
             })}
           </div>
-          <button onClick={handleSubmit} className="border text-md mt-2">
+          <button
+            onClick={handleSubmit}
+            className="text-md mt-2 px-2 py-1 rounded-md bg-green-500 hover:bg-green-600"
+          >
             Create Group
           </button>
         </div>

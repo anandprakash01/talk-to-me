@@ -27,7 +27,7 @@ const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fullPageLoading, setFullPageLoading] = useState(true);
-  const [popup, setPopup] = useState(false);
+  const [isPopup, setIsPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState({
     title: "",
     text: "",
@@ -68,21 +68,21 @@ const Login = () => {
 
       // setting up info in local storage
       localStorage.setItem("userInfo", JSON.stringify(data));
-      setPopup(true);
+      setIsPopup(true);
       popupMsg.text = "Successfully Logged in, redirecting you to chat page";
       popupMsg.title = "Logged in";
       setTimeout(() => {
-        setPopup(false);
+        setIsPopup(false);
         navigate("/chat");
       }, 4000);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
-      setPopup(true);
+      setIsPopup(true);
       popupMsg.text = error.response?.data.message;
       popupMsg.title = "Error";
       setTimeout(() => {
-        setPopup(false);
+        setIsPopup(false);
       }, 4000);
       setIsLoading(false);
     }
@@ -133,10 +133,10 @@ const Login = () => {
 
   return (
     <div className="h-screen flex items-center justify-center bg-bg_primary_dark relative">
-      {popup && (
+      {isPopup && (
         <Popup
           onClick={() => {
-            setPopup(!popup);
+            setIsPopup(!isPopup);
           }}
           text={popupMsg.text}
           title={popupMsg.title}

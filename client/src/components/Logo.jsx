@@ -2,9 +2,9 @@ import React from "react";
 
 const Logo = () => {
   return (
-    <div className="text-logo_color bg-primary_color font-bold flex gap-2 justify-center p-1">
+    <div className="text-logo_color bg-primary_color font-bold flex gap-2 justify-center items-center">
       <svg
-        height="25"
+        height="35"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 54 54"
         id="bubble-chat"
@@ -21,7 +21,7 @@ const Logo = () => {
         </g>
       </svg>
 
-      <div className="select-none">Talk To Me</div>
+      <div className="select-none text-xl">Talk To Me</div>
     </div>
   );
 };

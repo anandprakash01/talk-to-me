@@ -23,18 +23,18 @@
 } */
 
 .message-scrollbar::-webkit-scrollbar-track {
-  background: #404349;
+  background: #4dafb3;
   border-radius: 0.5rem;
   margin-top: 0.5rem;
 }
 
 .message-scrollbar::-webkit-scrollbar-thumb {
-  background: #24262b;
+  background: #075c5f;
   border-radius: 0.5rem;
 }
 
 .message-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #6d7688;
+  background: #5f6c88;
   opacity: 1;
   transition: all;
   transition-duration: 0.5s;
