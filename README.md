@@ -2,7 +2,7 @@
 Talk to me
 </h1>
 
-![Project Logo](./client/src/assets/git/logo.png)
+![Project Logo](./client/src/assets/git/Logo.png)
 
 A real-time chat application built with the MERN stack (MongoDB, Express, React, Node.js). This application supports one-on-one messaging as well as group messaging, enabling users to communicate in real-time.
 
