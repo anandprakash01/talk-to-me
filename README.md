@@ -44,7 +44,7 @@ Deployed link: https://talk-to-mee.netlify.app/
 
 **Sign Up and Sign In**
 ![Sign up](./client/src/assets/git/Register.png)
-![Sign in](./client/src/assets/git/Login.png)
+![Sign in](./client/src/assets/git/LogIn.png)
 
 **Home Page**
 ![Home](./client/src/assets/git/Home.png)

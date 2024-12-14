@@ -16,6 +16,7 @@ import GroupCreateModal from "../components/GroupCreateModal";
 import GroupUpdateModal from "../components/GroupUpdateModal";
 import SearchSideBar from "../components/SearchSideBar";
 import {getSender} from "../config/chatLogics";
+import Popup from "../components/Popup.jsx";
 
 import userIcon from "../assets/icons/userIcon.svg";
 import LinkIcon from "../assets/icons/LinkIcon.jsx";
@@ -26,9 +27,6 @@ import NotificationIcon from "../assets/icons/NotificationIcon.jsx";
 import SearchIcon from "../assets/icons/SearchIcon.jsx";
 import AddToGroupIcon from "../assets/icons/AddToGroupIcon.jsx";
 import UserIconCircle from "../assets/icons/UserIconCircle.jsx";
-
-import Doodles from "../assets/doodles.jsx";
-import Popup from "../components/Popup.jsx";
 
 const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare;
