@@ -1,6 +1,4 @@
-<h1 style="text-align: center;" >
-Talk to me
-</h1>
+# Talk to me
 
 ![Project Logo](./client/src/assets/git/Logo.png)
 
@@ -74,7 +72,7 @@ To run the project locally, follow these steps:
    - Create a .env file in the server directory and add your environment variables (such as MongoDB URI, JWT secret key, etc.)
    - Install dependencies: `npm install`.
 
-3. **Frontend Setup (React):**
+3. **Frontend/Client Setup (React):**
 
    - Navigate to client in the project directory: `cd talk-to-me/client`.
    - Install dependencies: `npm install`.

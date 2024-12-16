@@ -28,7 +28,8 @@ import SearchIcon from "../assets/icons/SearchIcon.jsx";
 import AddToGroupIcon from "../assets/icons/AddToGroupIcon.jsx";
 import UserIconCircle from "../assets/icons/UserIconCircle.jsx";
 
-const ENDPOINT = "http://localhost:5000";
+// const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://talk-to-me-anand.onrender.com";
 var socket, selectedChatCompare;
 
 const Chat = () => {
