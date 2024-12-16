@@ -1,7 +1,7 @@
 import axios from "axios";
 import {
-  Link,
-  Outlet,
+  // Link,
+  // Outlet,
   Navigate,
   Route,
   RouterProvider,
