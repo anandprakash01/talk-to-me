@@ -44,7 +44,7 @@ app.use(errorHandler);
 // ========================Deployment===================
 
 console.log(process.env.NODE_ENV);
-console.log("anand prakash❤️❤️");
+console.log("anand prakash❤️");
 const __dirname1 = path.resolve(); //current working dir
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname1, "/client/dist")));
