@@ -127,7 +127,7 @@ const loginUser = asyncFunction(async (req, res) => {
     // sameSite: "Strict", // Prevents CSRF attacks
     // sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
     sameSite: "None",
-    // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
     // expires: expires,
   });
 
