@@ -128,7 +128,7 @@ const loginUser = asyncFunction(async (req, res) => {
     // sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
     sameSite: "None",
     // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
-    // expires: expires,
+    expires: expires,
   });
 
   //sending token in headers
