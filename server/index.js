@@ -1,15 +1,16 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cookieParser = require("cookie-parser");
 // require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config(); // this should be above, before the modules/files are imported then only it will get the variables ===> to the top to ensure all environment variables are loaded before any other module uses them.
+
+const express = require("express");
+const cookieParser = require("cookie-parser");
+
 const cors = require("cors");
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const {Server} = require("socket.io");
-
-dotenv.config(); // this should be above, before the modules/files are imported then only it will get the variables
 
 const connectDB = require("./config/db.js");
 const Messages = require("./models/message.js");
@@ -21,7 +22,11 @@ const {notFound, errorHandler} = require("./middlewares/error.js");
 const authMiddleware = require("./middlewares/authMiddleware.js");
 const createWebSocketServer = require("./services/webSocket.js");
 
-connectDB();
+// connectDB();
+connectDB().catch(error => {
+  console.error("Database connection failed:", error);
+  process.exit(1);
+});
 
 const app = express();
 const port = process.env.PORT || 5000;

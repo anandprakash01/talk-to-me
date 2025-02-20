@@ -10,9 +10,10 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(500).json({
     success: false,
-    message: "Something went wrong, Last Middleware: " + err.message,
+    message: "Something went wrong",
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
+  console.log("Last Middleware : " + err.message,)
 };
 
 module.exports = {notFound, errorHandler};

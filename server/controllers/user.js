@@ -62,10 +62,13 @@ const registerUser = asyncFunction(async (req, res) => {
   await Users.findByIdAndUpdate(user._id, {token});
 
   //sending token in cookies
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day from now
   res.cookie("token", token, {
     httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
     secure: true, // Ensures the cookie is sent over HTTPS
     sameSite: "Strict", // Prevents CSRF attacks
+    // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
+    expires: expires,
   });
 
   //sending token in headers
