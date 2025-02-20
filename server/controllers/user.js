@@ -66,7 +66,8 @@ const registerUser = asyncFunction(async (req, res) => {
   res.cookie("token", token, {
     httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
     secure: true, // Ensures the cookie is sent over HTTPS
-    sameSite: "Strict", // Prevents CSRF attacks
+    // sameSite: "Strict", // Prevents CSRF attacks
+    sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
     // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
     expires: expires,
   });
