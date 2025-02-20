@@ -125,7 +125,8 @@ const loginUser = asyncFunction(async (req, res) => {
     httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
     secure: true, // Ensures the cookie is sent over HTTPS
     // sameSite: "Strict", // Prevents CSRF attacks
-    sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
+    // sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
+    sameSite: "None",
     // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
     expires: expires,
   });
