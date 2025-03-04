@@ -17,7 +17,6 @@ import LoadingPage from "../components/LoadingPage";
 import show from "../assets/icons/show.svg";
 import hide from "../assets/icons/hide.svg";
 import loadingIcon from "../assets/loading.svg";
-import {set} from "mongoose";
 
 const Register = () => {
   const navigate = useNavigate();
