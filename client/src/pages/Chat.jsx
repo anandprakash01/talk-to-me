@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
 
 import axios from "axios";
@@ -19,6 +19,7 @@ import {getSender} from "../config/chatLogics";
 import Popup from "../components/Popup.jsx";
 
 import userIcon from "../assets/icons/userIcon.svg";
+import avatarUser from "../assets/icons/avatarUser.svg";
 import LinkIcon from "../assets/icons/LinkIcon.jsx";
 import SendIcon from "../assets/icons/SendIcon.jsx";
 import LogoutIcon from "../assets/icons/LogoutIcon.jsx";
@@ -27,6 +28,7 @@ import NotificationIcon from "../assets/icons/NotificationIcon.jsx";
 import SearchIcon from "../assets/icons/SearchIcon.jsx";
 import AddToGroupIcon from "../assets/icons/AddToGroupIcon.jsx";
 import UserIconCircle from "../assets/icons/UserIconCircle.jsx";
+import LoadingPage from "../components/LoadingPage.jsx";
 
 const ENDPOINT = "http://localhost:5000";
 // const ENDPOINT = "https://talk-to-me-anand.onrender.com";
@@ -47,18 +49,24 @@ const Chat = () => {
     setFetchAgain,
     notification,
     setNotification,
+    isLoadingUserInfo,
   } = useContext(UserContext);
 
   const [loggedUser, setLoggedUser] = useState({});
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isFullLoading, setIsFullLoading] = useState(false);
   const [isGroupChatModal, setIsGroupChatModal] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [isPopup, setIsPopup] = useState(false);
+  const [popupMsg, setPopupMsg] = useState({
+    title: "",
+    text: "",
+  });
 
   // ==============
 
@@ -73,9 +81,11 @@ const Chat = () => {
 
   const navigate = useNavigate();
 
-  if (!user) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!isLoadingUserInfo && !user.name) {
+      navigate("/login");
+    }
+  });
 
   const fetchChats = async () => {
     const config = {
@@ -85,7 +95,6 @@ const Chat = () => {
     };
     try {
       const res = await axios.get("/api/v1/chat/", config);
-      // console.log(res);
       setChats(res.data);
     } catch (err) {
       console.log(err);
@@ -102,8 +111,26 @@ const Chat = () => {
 
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
-  }, [user]); // user is undefined in first render thats why user dependency
+  }, [user]);
+  // user is undefined in first render thats why user dependency
   // using user in the dependency typing is not working
+
+  useEffect(() => {
+    socket.on("message received", newMessageReceived => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        // give notification
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  });
 
   useEffect(() => {
     setLoggedUser(user);
@@ -133,23 +160,6 @@ const Chat = () => {
     fetchMessages();
     selectedChatCompare = selectedChat;
   }, [selectedChat]);
-
-  useEffect(() => {
-    socket.on("message received", newMessageReceived => {
-      if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== newMessageReceived.chat._id
-      ) {
-        // give notification
-        if (!notification.includes(newMessageReceived)) {
-          setNotification([newMessageReceived, ...notification]);
-          setFetchAgain(!fetchAgain);
-        }
-      } else {
-        setMessages([...messages, newMessageReceived]);
-      }
-    });
-  });
 
   const typingHandler = e => {
     setNewMessage(e.target.value);
@@ -270,11 +280,29 @@ const Chat = () => {
         // setId("");
         // setUsername("");
         setUser({});
-        console.log("logged out");
-        navigate("/login");
+        setSelectedChat(); //object
+        setMessages([]);
+        // localStorage.removeItem("userInfo");
+        setIsPopup(true);
+        setPopupMsg({
+          text: "Successfully Logged out, redirecting you to Login page",
+          title: "Logout",
+        });
+        setTimeout(() => {
+          setIsPopup(false);
+          navigate("/login");
+        }, 3000);
       })
       .catch(err => {
-        console.log(err);
+        console.log("Error while logging out:=> ", err);
+        setIsPopup(true);
+        setPopupMsg({
+          text: "Something went wrong, Please refresh and try again!",
+          title: "Error",
+        });
+        setTimeout(() => {
+          setIsPopup(false);
+        }, 4000);
       });
   };
 
@@ -376,8 +404,22 @@ const Chat = () => {
   );
   // console.log(messagesWithoutDupes);
 
+  if (isLoadingUserInfo) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className="flex h-screen">
+      {isFullLoading && <LoadingPage />}
+      {isPopup && (
+        <Popup
+          onClick={() => {
+            setIsPopup(!isPopup);
+          }}
+          text={popupMsg.text}
+          title={popupMsg.title}
+        />
+      )}
       {isSearchSidebar && (
         <SearchSideBar
           onClick={() => {
@@ -389,8 +431,13 @@ const Chat = () => {
       {/* ====================contact sidebar*/}
 
       <div className="flex flex-col bg-bg_primary_lite w-1/3 border-r border-r-[#0d4247]">
-        <div className="flex gap-2 justify-between items-center h-[4.1rem] p-2 px-5 border-b border-[#0d4247]">
-          <Logo />
+        <div className="flex justify-between items-center border-b border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-7 md:min-h-12">
+          <div className="text-logo_color bg-primary_color font-bold flex gap-1 justify-center items-center xs:h-4 sm:h-4 md:h-6 lg:h-8 xl:h-10">
+            <Logo />
+            <div className="select-none text-nowrap xs:text-[0.5rem] sm:text-xs md:text-lg lg:text-xl">
+              Talk To Me
+            </div>
+          </div>
 
           {/* ==========Notification Icon */}
           <div className="relative">
@@ -398,16 +445,14 @@ const Chat = () => {
               onClick={() => {
                 setShowNotification(!showNotification);
               }}
-              className="select-none text-icon_color h-8 w-8 hover:text-white cursor-pointer"
+              className="select-none text-icon_color hover:text-white cursor-pointer"
             >
+              <NotificationIcon />
               {notification.length > 0 && (
-                <div className="relative">
-                  <div className="pl-1 h-4 w-4 bg-red-600 absolute left-4 -top-1 rounded-full text-xs">
-                    {notification.length}
-                  </div>
+                <div className="absolute pl-1 h-4 w-4 bg-red-600 rounded-full text-xs -top-1 right-1">
+                  {notification.length}
                 </div>
               )}
-              <NotificationIcon />
             </div>
             {/* ==========Show Notification */}
             {showNotification && (
@@ -503,12 +548,12 @@ const Chat = () => {
 
         {/* ===========Add To Group and New Chat */}
         <div className="relative">
-          <div className="absolute right-4 bottom-12">
+          <div className="absolute right-2 bottom-5">
             <div
               onClick={() => {
                 setIsSearchSidebar(true);
               }}
-              className="h-9 w-9 mb-4 text-icon_color cursor-pointer hover:text-white transition-all duration-300"
+              className="mb-2 text-icon_color cursor-pointer hover:text-white transition-all duration-300 xs:w-5 md:w-7 lg:w-8"
             >
               <SearchIcon />
             </div>
@@ -516,24 +561,35 @@ const Chat = () => {
               onClick={() => {
                 setIsGroupChatModal(true);
               }}
-              className="h-9 w-9 cursor-pointer text-icon_color hover:text-white transition-all duration-300"
+              className="cursor-pointer text-icon_color hover:text-white transition-all duration-300 xs:w-5 md:w-7 lg:w-8"
             >
               <AddToGroupIcon />
             </div>
           </div>
         </div>
         {/* ====================Logged in user */}
-        <div className="flex items-center justify-between px-2 py-3 bg-primary_color border-t border-[#0d4247]">
-          <span
+        <div className="flex items-center justify-between bg-primary_color border-t border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-7 md:min-h-12">
+          <div
             onClick={() => {
               setShowProfile(true);
             }}
-            className="text-sm text-[#F9DBBB] flex items-center gap-2 p-2 select-none cursor-pointer"
+            className="flex items-center text-[#F9DBBB] gap-2 select-none cursor-pointer"
           >
-            <img src={userIcon} alt="" className="w-5" />
-            {/* <UserIconCircle /> */}
-            {user.name}
-          </span>
+            {/* <img src={userIcon} alt="" className="w-5" /> */}
+            <span className="xs:w-5 md:w-8 hover:text-white transition-all duration-300">
+              <UserIconCircle />
+            </span>
+            <span className="md:text-lg font-medium hover:text-white transition-all duration-300 xs:text-[0.5rem]">
+              {user.name}
+            </span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="xs:w-5 md:w-7 lg:w-8 text-icon_color bg-red-500 xs:rounded-md md:rounded-lg hover:bg-red-600 xs:py-[0.1rem] xs:pl-[0.15rem] md:p-1 md:pl-[0.3rem] hover:text-white transition-all duration-300"
+          >
+            <LogoutIcon />
+          </button>
+
           {showProfile && (
             <ProfileDetail
               onClick={() => {
@@ -545,22 +601,16 @@ const Chat = () => {
               image={userIcon}
             />
           )}
-          <button
-            onClick={handleLogout}
-            className="h-8 w-8 text-icon_color bg-red-500 font-semibold rounded-lg hover:bg-red-600 p-1 pl-2 hover:text-white transition-all duration-300"
-          >
-            <LogoutIcon />
-          </button>
         </div>
       </div>
 
       {/* ====================Messages Section */}
 
-      <div className="flex flex-col bg-bg_primary_dark w-2/3 ">
+      <div className="flex flex-col bg-bg_primary_dark w-2/3">
         {/* ==========Name and Profile */}
         {/* <Doodles /> */}
         {selectedChat && (
-          <div className="flex items-center justify-between gap-1 bg-bg_primary_lite py-2 px-5">
+          <div className="flex items-center justify-between bg-bg_primary_lite px-2 xs:min-h-7 md:min-h-12">
             {showSenderProfile &&
               (selectedChat.isGroupChat ? (
                 <GroupUpdateModal
@@ -578,7 +628,16 @@ const Chat = () => {
                   userId={selectedChat._id}
                 />
               ))}
-            <div
+
+            <img
+              onClick={() => {
+                setShowSenderProfile(true);
+              }}
+              src={avatarUser}
+              alt=""
+              className="cursor-pointer xs:w-6 md:w-10"
+            />
+            {/* <div
               onClick={() => {
                 setShowSenderProfile(true);
               }}
@@ -594,15 +653,18 @@ const Chat = () => {
                     : getSender(user, selectedChat.users).name
                 }
               />
-            </div>
-            <div className="flex capitalize font-semibold text-white text-lg">
+            </div> */}
+            <div className="flex capitalize font-normal text-white xs:text-xs md:text-lg">
               {selectedChat.isGroupChat
                 ? selectedChat.chatName
                 : getSender(user, selectedChat.users).name}
             </div>
             <button
               onClick={() => {
-                setIsPopup(!isPopup);
+                popupMsg.text =
+                  "We're working hard to launch our new features. Stay tuned for something amazing!";
+                popupMsg.title = "Coming Soon";
+                setIsPopup(true);
               }}
               className="h-5 w-5 text-icon_color rounded-full hover:text-white transition-all duration-300"
             >
@@ -611,19 +673,10 @@ const Chat = () => {
                   {0}
                 </div>
               </div> */}
-              <PhoneCallIcon />
+              <div className="xs:size-4 md:size-5">
+                <PhoneCallIcon />
+              </div>
             </button>
-            {isPopup && (
-              <Popup
-                onClick={() => {
-                  setIsPopup(!isPopup);
-                }}
-                text={
-                  "We're working hard to launch our new features. Stay tuned for something amazing!"
-                }
-                title={"Coming Soon"}
-              />
-            )}
           </div>
         )}
 
@@ -664,24 +717,27 @@ const Chat = () => {
 
         {/* ========Send message form========= */}
         {selectedChat && (
-          <form onSubmit={sendMessage} className="flex gap-2 p-3 bg-primary_color ">
+          <form
+            onSubmit={sendMessage}
+            className="flex items-center gap-2 p-1 md:px-2 bg-primary_color xs:min-h-7 md:min-h-12"
+          >
             <input
               type="text"
               value={newMessage}
               onChange={typingHandler}
               placeholder="Type your message here"
-              className="flex-grow border p-2 rounded-lg bg-bg_input  outline-none focus-within:border focus-within:border-green-500"
+              className="flex-grow text-xs xs:h-5 md:h-8 border xs:px-1 md:px-2 xs:rounded-md md:rounded-lg bg-bg_input outline-none focus-within:border focus-within:border-green-500"
             />
             <label
               type="button"
-              className="bg-blue-500 p-2 rounded-lg w-10 cursor-pointer text-icon_color hover:text-white hover:bg-blue-600 hover: transition-all duration-300"
+              className="bg-blue-500 p-[2px] pl-[0.15rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-5 md:w-8 cursor-pointer text-icon_color hover:text-white hover:bg-blue-600 hover: transition-all duration-300"
             >
               <input type="file" onChange={handleSendFile} className="hidden" />
               <LinkIcon />
             </label>
             <button
               type="submit"
-              className="text-icon_color bg-green-500 w-10 p-2 rounded-lg cursor-pointer hover:bg-green-600 hover:text-white transition-all duration-300"
+              className="text-icon_color bg-green-500 xs:p-[0.1rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-5 md:w-8 cursor-pointer hover:bg-green-600 hover:text-white transition-all duration-300"
             >
               <SendIcon />
             </button>

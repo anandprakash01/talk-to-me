@@ -3,7 +3,7 @@ import React from "react";
 const Popup = ({onClick, title, text}) => {
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-950 w-full h-screen z-40 bg-opacity-65 flex items-center justify-center transition-all duration-300">
-      <div className="absolute w-96 bg-bg_primary_lite rounded-lg z-50">
+      <div className="absolute xs:w-60 md:w-96 bg-bg_primary_lite rounded-lg z-50">
         <div className="relative">
           <div
             onClick={onClick}
@@ -13,9 +13,9 @@ const Popup = ({onClick, title, text}) => {
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth="1.5"
+              strokeWidth="1.7"
               stroke="currentColor"
-              className="size-6"
+              className="xs:size-3 md:size-4 lg:size-6"
             >
               <path
                 strokeLinecap="round"
@@ -25,10 +25,12 @@ const Popup = ({onClick, title, text}) => {
             </svg>
           </div>
         </div>
-        <div className="text-center mx-auto mt-5 w-2/3 p-5 text-lg font-bold text-emerald-200">
+        <div className="text-center mx-auto mt-4 w-2/3 p-5 xs:text-base md:text-lg font-bold text-emerald-200">
           {title}
         </div>
-        <div className="mb-10 mx-auto w-3/4 text-white text-center">{text}</div>
+        <div className="mb-10 mx-auto w-3/4 text-white text-center xs:text-sm md:text-lg">
+          {text}
+        </div>
       </div>
     </div>
   );

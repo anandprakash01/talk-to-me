@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {createContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import LoadingPage from "../components/LoadingPage";
 
 export const UserContext = createContext({});
 
@@ -11,28 +12,57 @@ export const UserContextProvider = ({children}) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const [notification, setNotification] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("/api/v1/user/get-profile") // we need to authenticate cookie data in the backend
-      .then(response => {
-        // console.log(response);
-        setUser(response.data);
-        setLoading(false);
-        // setUserName(response.data.name);
-        // setId(response.data._id);
-        // setUserEmail(response.data.email);
-        // setUserProfilePicture(response.data.profilePicture);
-      })
-      .catch(err => {
-        console.log("can not get User details, error message:", err);
-        setLoading(false);
-      });
-  }, []);
+    //  axios
+    //   .get("/api/v1/user/get-profile") // we need to authenticate cookie data in the backend
+    //   .then(response => {
+    //     // console.log(response);
+    //     setUser(response.data);
+    //     setLoadingUserInfo(false);
+    //     // setUserName(response.data.name);
+    //     // setId(response.data._id);
+    //     // setUserEmail(response.data.email);
+    //     // setUserProfilePicture(response.data.profilePicture);
+    //   })
+    //   .catch(err => {
+    //     console.log("can not get User details, error message:", err);
+    //     setLoadingUserInfo(false);
+    //   });
 
-  // if (loading) return <div>Loading...</div>;
-  // Display loading state while fetching data
+    const getProfile = async () => {
+      setIsLoadingUserInfo(true);
+      try {
+        const response = await axios.get("api/v1/user/get-profile");
+        setUser(response.data);
+        setIsLoadingUserInfo(false);
+      } catch (error) {
+        console.log("can not get User details, error message:", error);
+        setIsLoadingUserInfo(false);
+      }
+    };
+    getProfile();
+
+    // Get all cookies in a single string
+    // HttpOnly Cookies Cannot be accessed via JavaScript.
+    // const cookies = document.cookie;
+    // // Split cookies into an array
+    // const cookieArray = cookies.split("; ");
+
+    // // Find a specific cookie
+    // const getCookie = name => {
+    //   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    //   return match ? match[2] : null;
+    // };
+
+    // const token = getCookie("token");
+    // console.log("Token:", token);
+    // Set a cookie
+    // document.cookie = "token=yourTokenValue; path=/; expires=Fri, 31 Dec 2025 23:59:59 GMT";
+    // Remove a cookie
+    // document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  }, []);
 
   return (
     <UserContext.Provider
@@ -47,6 +77,7 @@ export const UserContextProvider = ({children}) => {
         setFetchAgain,
         notification,
         setNotification,
+        isLoadingUserInfo,
       }}
     >
       {children}

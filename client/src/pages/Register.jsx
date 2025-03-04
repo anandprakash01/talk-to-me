@@ -3,17 +3,25 @@ import axios from "axios";
 import {Link} from "react-router-dom";
 import {useNavigate} from "react-router";
 
+import {signInWithPopup} from "firebase/auth";
+import {auth, provider} from "../firebase";
+
+//components
 import {UserContext} from "../context/UserContext";
 import Chat from "./Chat";
 import Logo from "../components/Logo";
 import Popup from "../components/Popup";
+import LoadingPage from "../components/LoadingPage";
 
+//icons components
 import show from "../assets/icons/show.svg";
 import hide from "../assets/icons/hide.svg";
 import loadingIcon from "../assets/loading.svg";
+import {set} from "mongoose";
 
 const Register = () => {
   const navigate = useNavigate();
+  const {user, setUser, isLoadingUserInfo} = useContext(UserContext);
 
   const {
     userName,
@@ -37,22 +45,27 @@ const Register = () => {
   const [passwordErr, setPasswordErr] = useState("");
   const [confirmPasswordErr, setConfirmPasswordErr] = useState("");
 
-  const [firebaseErr, setFirebaseErr] = useState("");
-
   const [showPass, setShowPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [popup, setPopup] = useState(false);
+  const [isFullLoading, setIsFullLoading] = useState(false);
+  const [isPopup, setIsPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState({
     title: "",
     text: "",
   });
 
+  useEffect(() => {
+    if (user.name) {
+      navigate("/chat");
+    }
+  });
+
   //Email Validation
   const emailValidation = email => {
-    // validation for should include @,dot, and length min 4
+    // validation for should include @,dot, and length min 3
     return String(email)
       .toLowerCase()
-      .match(/^[a-zA-Z0-9._-]{4,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+      .match(/^[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
   };
 
   const handleProfilePic = e => {
@@ -65,7 +78,7 @@ const Register = () => {
         text: "Please select a profile picture",
       });
       setProfilePicture(""); //to remove the old uploads
-      setPopup(true);
+      setIsPopup(true);
       setIsLoading(false);
       return;
     }
@@ -121,7 +134,7 @@ const Register = () => {
 
   const handleRegistration = async e => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsFullLoading(true);
 
     if (!name) {
       setNameErr("! Enter your Name");
@@ -159,86 +172,108 @@ const Register = () => {
       password.length < 6 ||
       confirmPassword != password
     ) {
-      setIsLoading(false);
-      setPopup(true);
-      popupMsg.text = "Please fill all the required fields";
-      popupMsg.title = "Error";
-      // console.log("hey");
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        title: "Error",
+        text: "Please fill all the required fields",
+      });
       return;
     }
 
     try {
-      // const config = {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // };
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer TOKEN_HERE`,
+        },
+      };
 
-      const response = await axios.post("/api/v1/user/register", {
-        name,
-        email,
-        password,
-        profilePicture,
-      });
-      // console.log(response);
+      const response = await axios.post(
+        "/api/v1/user/register",
+        {
+          name,
+          email,
+          password,
+          profilePicture,
+        },
+        config
+      );
       // console.log(response.headers.Authorization);//received in network tab headers but can not access it
 
-      const {data} = response;
+      setUser(response.data);
       // setUserName(data.name);
       // setUserEmail(data.email);
       // setId(data._id);
       // setUserProfilePicture(data.profilePicture);
 
       // setting up info in local storage
-      localStorage.setItem("userInfo", JSON.stringify(data));
-
-      setPopup(true);
-      popupMsg.text = "Successfully created User, redirecting you to chat page";
-      popupMsg.title = "User created";
+      // localStorage.setItem("userInfo", JSON.stringify(data));
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: "Successfully created User, redirecting you to chat page",
+        title: "User created",
+      });
       setTimeout(() => {
-        setPopup(false);
+        setIsPopup(false);
         navigate("/chat");
       }, 3000);
-      setIsLoading(false);
     } catch (error) {
-      console.log(error);
-      setPopup(true);
-      popupMsg.text = error.response.data.message;
-      popupMsg.title = "Error";
+      console.log("error in registration:=> ", error);
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: error.response?.data.message || "Something went wrong, Please try again!",
+        title: "Error",
+      });
       setTimeout(() => {
-        setPopup(false);
+        setIsPopup(false);
       }, 4000);
-      setIsLoading(false);
     }
   };
 
-  const handleLoginWithGoogle = e => {
-    // e.preventDefault();
-    // setLoading(true);
-    // signInWithPopup(auth, provider)
-    //   .then(result => {
-    //     console.log(result);
-    //     const user = result.user;
-    //     dispatch(
-    //       setUserInfo({
-    //         id: user.uid,
-    //         userName: user.displayName,
-    //         email: user.email,
-    //         photoURL: user.photoURL,
-    //       })
-    //     );
-    //     setLoading(false);
-    //     setSuccessMsg(
-    //       "Logged in Successfully! Welcome you back. Redirecting you to Home page..."
-    //     );
-    //     setTimeout(() => {
-    //       navigate("/");
-    //     }, 3000);
-    //   })
-    //   .catch(error => {
-    //     setLoading(false);
-    //     console.log("ERROR: ", error);
-    //   });
+  const handleLoginWithGoogle = async e => {
+    e.preventDefault();
+    setIsFullLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      // console.log("accessToken : ", result.user.accessToken);
+      const accessToken = result.user.accessToken;
+      const response = await axios.post("/api/v1/user/login-google", {accessToken});
+      // console.log(response);
+      setUser(response.data);
+
+      // dispatch(
+      //   setUserInfo({
+      //     id: user.uid,
+      //     userName: user.displayName,
+      //     email: user.email,
+      //     photoURL: user.photoURL,
+      //   })
+      // );
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: "Successfully Logged in, redirecting you to chat page",
+        title: "Logged in",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+        navigate("/chat");
+      }, 3000);
+    } catch (error) {
+      console.log("error in Google login:=> ", error);
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: error.response?.data.message || "Something went wrong, Please try again!",
+        title: "Error",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+      }, 4000);
+    }
   };
 
   // useEffect(() => {
@@ -248,19 +283,29 @@ const Register = () => {
   // }
   // }, [id]);
 
+  if (isLoadingUserInfo) {
+    return <LoadingPage width={12} />;
+  }
+
   return (
-    <div className="h-screen flex items-center justify-center bg-[#003C43] relative">
-      {popup && (
+    <div className="h-screen flex items-center justify-center bg-[#003C43]">
+      {isFullLoading && <LoadingPage width={12} />}
+      {isPopup && (
         <Popup
           onClick={() => {
-            setPopup(!popup);
+            setIsPopup(!isPopup);
           }}
           text={popupMsg.text}
           title={popupMsg.title}
         />
       )}
-      <div className="bg-[#135D66] p-3 rounded-lg flex flex-col gap-3 absolute top-10">
-        <Logo />
+      <div className="bg-[#135D66] p-3 rounded-lg flex flex-col gap-3 xs:scale-75 md:scale-100">
+        {/* =======Logo */}
+        <div className="text-logo_color bg-primary_color font-bold flex gap-1 justify-center items-center h-10">
+          <Logo />
+          <div className="select-none text-nowrap text-xl">Talk To Me</div>
+        </div>
+        {/* =======Logo End */}
         <div className="flex justify-evenly items-center my-4 text-white gap-1">
           <Link
             to="/login"
@@ -416,7 +461,10 @@ const Register = () => {
             {isLoading ? <img src={loadingIcon} className="w-8 mx-auto" /> : "Register"}
           </button>
         </form>
-        <button className="bg-blue-500 text-white block h-9 w-full rounded-lg mb-3 hover:bg-blue-600 transition-all duration-300">
+        <button
+          onClick={handleLoginWithGoogle}
+          className="bg-blue-500 text-white block h-9 w-full rounded-lg mb-3 hover:bg-blue-600 transition-all duration-300"
+        >
           Login with Google
         </button>
       </div>

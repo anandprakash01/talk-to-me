@@ -16,6 +16,20 @@
   transition: opacity 250ms; */
 }
 
+/* Small screens (max-width: 600px) */
+@media (max-width: 600px) {
+  .message-scrollbar::-webkit-scrollbar {
+    width: 0.2rem;
+  }
+}
+
+/* Medium screens (min-width: 601px) and (max-width: 1024px) */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .message-scrollbar::-webkit-scrollbar {
+    width: 0.3rem;
+  }
+}
+
 /* .message-scrollbar {
   scrollbar-color: red green;
   scroll-behavior: smooth;

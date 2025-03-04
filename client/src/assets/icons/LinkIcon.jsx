@@ -17,7 +17,7 @@ const LinkIcon = () => {
       </svg> */}
 
       <svg
-        className="rounded-sm"
+        className="xs:rounded-sm md:rounded-md"
         fill="currentColor"
         version="1.1"
         id="Capa_1"

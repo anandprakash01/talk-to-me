@@ -19,7 +19,7 @@ const DisplayMessages = ({messages, message, userId, i}) => {
       )} */}
       <div
         className={
-          "inline-block p-2 my-1 rounded-md text-sm  " +
+          "inline-block p-2 my-1 rounded-md xs:text-[0.5rem] md:text-sm  " +
           (sender._id === userId
             ? "bg-[#3695a1] text-[#FBF9F1]"
             : "bg-[#37a8c2] text-[#0f1114]")

@@ -12,9 +12,12 @@ import show from "../assets/icons/show.svg";
 import hide from "../assets/icons/hide.svg";
 import loadingIcon from "../assets/loading.svg";
 
+import {auth, provider} from "../firebase";
+import {signInWithPopup} from "firebase/auth";
+
 const Login = () => {
   const navigate = useNavigate();
-  const {user, setUser} = useContext(UserContext);
+  const {user, setUser, isLoadingUserInfo} = useContext(UserContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,21 +25,24 @@ const Login = () => {
   const [emailErr, setEmailErr] = useState("");
   const [passwordErr, setPasswordErr] = useState("");
 
-  const [firebaseErr, setFirebaseErr] = useState("");
-
   const [showPass, setShowPass] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [fullPageLoading, setFullPageLoading] = useState(true);
+  const [isBtnLoading, setIsBtnLoading] = useState(false); // show loading inside button
+  const [isFullLoading, setIsFullLoading] = useState(false);
   const [isPopup, setIsPopup] = useState(false);
   const [popupMsg, setPopupMsg] = useState({
     title: "",
     text: "",
   });
 
+  useEffect(() => {
+    if (user.name) {
+      navigate("/chat");
+    }
+  });
+
   const handleLogin = async e => {
     e.preventDefault();
-    setIsLoading(true);
-
+    setIsFullLoading(true);
     if (!email) {
       setEmailErr("! Enter your email");
       // setFirebaseErr("");
@@ -44,95 +50,143 @@ const Login = () => {
     if (!password) {
       setPasswordErr("! Enter your Password");
     }
-
     if (!email || !password) {
-      setIsLoading(false);
+      setIsFullLoading(false);
       return;
     }
 
     try {
-      // const config = {
+      // const config = {// for sending token in headers
       //   headers: {
       //     "Content-Type": "application/json",
+      //      Authorization: `Bearer TOKEN_HERE`,
       //   },
       // };
-
-      const response = await axios.post("/api/v1/user/login", {email, password});
-      // console.log(response);
-      const {data} = response;
-      setUser(data);
+      const response = await axios.post(
+        "/api/v1/user/login",
+        {email, password},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer MY_TOKEN",
+          },
+        }
+      );
+      setUser(response.data);
       // setUserName(data.name);
       // setUserEmail(data.email);
       // setId(data._id);
       // setUserProfilePicture(data.profilePicture);
 
       // setting up info in local storage
-      localStorage.setItem("userInfo", JSON.stringify(data));
+      // localStorage.setItem("userInfo", JSON.stringify(data));
+      setIsFullLoading(false);
       setIsPopup(true);
-      popupMsg.text = "Successfully Logged in, redirecting you to chat page";
-      popupMsg.title = "Logged in";
+      setPopupMsg({
+        text: "Successfully Logged in, redirecting you to chat page",
+        title: "Logged in",
+      });
       setTimeout(() => {
         setIsPopup(false);
         navigate("/chat");
-      }, 4000);
-      setIsLoading(false);
+      }, 3000);
     } catch (error) {
-      console.log(error);
+      console.log("error in login:=> ", error);
+      setIsFullLoading(false);
       setIsPopup(true);
-      popupMsg.text = error.response?.data.message;
-      popupMsg.title = "Error";
+      setPopupMsg({
+        text: error.response?.data.message || "Something went wrong, Please try again!",
+        title: "Error",
+      });
       setTimeout(() => {
         setIsPopup(false);
       }, 4000);
-      setIsLoading(false);
     }
   };
 
-  const handleLoginGuest = () => {};
-
-  const handleLoginWithGoogle = e => {
-    // e.preventDefault();
-    // setLoading(true);
-    // signInWithPopup(auth, provider)
-    //   .then(result => {
-    //     console.log(result);
-    //     const user = result.user;
-    //     dispatch(
-    //       setUserInfo({
-    //         id: user.uid,
-    //         userName: user.displayName,
-    //         email: user.email,
-    //         photoURL: user.photoURL,
-    //       })
-    //     );
-    //     setLoading(false);
-    //     setSuccessMsg(
-    //       "Logged in Successfully! Welcome you back. Redirecting you to Home page..."
-    //     );
-    //     setTimeout(() => {
-    //       navigate("/");
-    //     }, 3000);
-    //   })
-    //   .catch(error => {
-    //     setLoading(false);
-    //     console.log("ERROR: ", error);
-    //   });
+  const handleLoginGuest = async e => {
+    e.preventDefault();
+    setIsFullLoading(true);
+    try {
+      const response = await axios.post("/api/v1/user/login-guest", {
+        email: "guestuser.talktome@gmail.com",
+      });
+      setUser(response.data);
+      // localStorage.setItem("userInfo", JSON.stringify(data));
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: "Successfully Logged in, redirecting you to chat page",
+        title: "Logged in",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+        navigate("/chat");
+      }, 3000);
+    } catch (error) {
+      console.log("error in login guest:=> ", error);
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: error.response?.data.message || "Something went wrong, Please try again!",
+        title: "Error",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+      }, 4000);
+    }
   };
 
-  useEffect(() => {
-    setFullPageLoading(false);
-    if (user._id) {
-      navigate("/chat");
-      return;
-    }
-  }, [user]);
+  const handleLoginWithGoogle = async e => {
+    e.preventDefault();
+    setIsFullLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      // console.log("accessToken : ", result.user.accessToken);
+      const accessToken = result.user.accessToken;
+      const response = await axios.post("/api/v1/user/login-google", {accessToken});
+      // console.log(response);
+      setUser(response.data);
+      // localStorage.setItem("userInfo", JSON.stringify(data));
 
-  if (fullPageLoading) {
-    return <LoadingPage />;
+      // dispatch(
+      //   setUserInfo({
+      //     id: user.uid,
+      //     userName: user.displayName,
+      //     email: user.email,
+      //     photoURL: user.photoURL,
+      //   })
+      // );
+      setIsFullLoading(false);
+      setIsPopup(true);
+      setPopupMsg({
+        text: "Successfully Logged in, redirecting you to chat page",
+        title: "Logged in",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+        navigate("/chat");
+      }, 3000);
+    } catch (error) {
+      console.log("error in Google login:=> ", error);
+      setIsPopup(true);
+      setIsFullLoading(false);
+      setPopupMsg({
+        text: error.response?.data.message || "Something went wrong, Please try again!",
+        title: "Error",
+      });
+      setTimeout(() => {
+        setIsPopup(false);
+      }, 4000);
+    }
+  };
+
+  if (isLoadingUserInfo) {
+    return <LoadingPage width={12} />;
   }
-
   return (
-    <div className="h-screen flex items-center justify-center bg-bg_primary_dark relative">
+    <div className="h-screen flex justify-center items-center bg-bg_primary_dark">
+      {isFullLoading && <LoadingPage width={12} />}
       {isPopup && (
         <Popup
           onClick={() => {
@@ -142,8 +196,14 @@ const Login = () => {
           title={popupMsg.title}
         />
       )}
-      <div className="bg-bg_primary_lite p-3 rounded-lg flex flex-col gap-3 absolute top-10">
-        <Logo />
+      <div className="bg-bg_primary_lite p-3 rounded-lg flex flex-col gap-3 xs:scale-75 md:scale-100">
+        {/* =======Logo */}
+        <div className="text-logo_color bg-primary_color font-bold flex gap-1 justify-center items-center h-10">
+          <Logo />
+          <div className="select-none text-nowrap text-xl">Talk To Me</div>
+        </div>
+        {/* =======Logo End */}
+
         <div className="flex justify-evenly items-center my-4 text-white gap-1">
           <Link
             to="/login"
@@ -223,12 +283,15 @@ const Login = () => {
 
           <button
             className="bg-blue-500 text-white block h-9 w-full rounded-lg hover:bg-blue-600 transition-all duration-300"
-            disabled={isLoading ? true : false}
+            disabled={isBtnLoading ? true : false}
           >
-            {isLoading ? <img src={loadingIcon} className="w-8 mx-auto" /> : "Login"}
+            {isBtnLoading ? <img src={loadingIcon} className="w-8 mx-auto" /> : "Login"}
           </button>
         </form>
-        <button className="bg-blue-500 text-white block h-9 w-full rounded-lg hover:bg-blue-600 transition-all duration-300">
+        <button
+          onClick={handleLoginWithGoogle}
+          className="bg-blue-500 text-white block h-9 w-full rounded-lg hover:bg-blue-600 transition-all duration-300"
+        >
           Login with Google
         </button>
         <button

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+const admin = require("../config/firebaseAdmin.js");
 const Users = require("../models/user.js");
 
 const {asyncFunction} = require("../utils/helper.js");
@@ -43,7 +44,7 @@ const registerUser = asyncFunction(async (req, res) => {
   });
 
   const tokenPayload = {
-    expiresIn: "30d",
+    // expiresIn: "30d",
     // exp: Math.floor(Date.now() / 1000 + 36000),
     email,
     _id: user._id,
@@ -58,7 +59,6 @@ const registerUser = asyncFunction(async (req, res) => {
   // });
 
   const token = jwt.sign(tokenPayload, jwtSecretKey);
-
   await Users.findByIdAndUpdate(user._id, {token});
 
   //sending token in cookies
@@ -67,7 +67,8 @@ const registerUser = asyncFunction(async (req, res) => {
     httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
     secure: true, // Ensures the cookie is sent over HTTPS
     // sameSite: "Strict", // Prevents CSRF attacks
-    sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
+    // sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
+    sameSite: "None",
     // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
     expires: expires,
   });
@@ -98,7 +99,6 @@ const loginUser = asyncFunction(async (req, res) => {
   }
 
   const isPasswordValid = bcrypt.compareSync(password, user.password);
-
   if (!isPasswordValid) {
     return res.status(401).json({
       success: false,
@@ -120,7 +120,6 @@ const loginUser = asyncFunction(async (req, res) => {
   await Users.findOneAndUpdate({email}, {token});
 
   //sending token in cookies
-  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 day from now
   res.cookie("token", token, {
     httpOnly: true, // Prevents JavaScript access, reducing XSS attack risks.
     secure: true, // Ensures the cookie is sent over HTTPS
@@ -128,7 +127,7 @@ const loginUser = asyncFunction(async (req, res) => {
     // sameSite: "Lax", // Allows cookies to be sent in cross-site requests under certain conditions
     sameSite: "None",
     // maxAge: 30 * 24 * 60 * 60 * 1000, // 30 day expiration in milliseconds
-    expires: expires,
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 day from now,
   });
 
   //sending token in headers
@@ -143,13 +142,82 @@ const loginUser = asyncFunction(async (req, res) => {
   });
 });
 
-const logoutUser = asyncFunction(async (req, res) => {
+// Login Guest User
+const loginGuestUser = asyncFunction(async (req, res) => {
+  const {email} = req.body;
+  const user = await Users.findOne({email});
+
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  //sending token in cookies
+  res.cookie("token", user.token, {
+    sameSite: "none",
+    secure: true,
+    httpOnly: true,
+    expires: expires,
+  });
+
+  //sending token in headers
+  res.setHeader("Authorization", `Bearer ${user.token}`);
+
+  res.status(201).json({
+    success: true,
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    profilePicture: user.profilePicture,
+  });
+});
+
+// login Google User
+const loginGoogleUser = asyncFunction(async (req, res, next) => {
+  const accessToken = req.body.accessToken;
   try {
-    const user = await Users.findByIdAndUpdate(req.user._id, {
-      token: "",
+    const decodedToken = await admin.auth().verifyIdToken(accessToken);
+    const {name, email, picture} = decodedToken;
+    let user = await Users.findOne({email});
+    if (!user) {
+      user = await Users.create({
+        name,
+        email,
+        profilePicture: picture,
+      });
+    }
+    const tokenPayload = {
+      expiresIn: "30d",
+      email: user.email,
+      _id: user._id,
+    };
+    const token = jwt.sign(tokenPayload, jwtSecretKey);
+    user = await Users.findByIdAndUpdate(user._id, {token});
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+    res.setHeader("Authorization", `Bearer ${token}`);
+    res.status(201).json({
+      success: true,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      profilePicture: user.profilePicture,
     });
   } catch (err) {
-    console.log("error while logging out");
+    console.log(err);
+    res.status(401).send("Unauthorized, please try again");
+  }
+});
+
+const logoutUser = asyncFunction(async (req, res) => {
+  if (req.user.email != "guestuser.talktome@gmail.com") {
+    try {
+      const user = await Users.findByIdAndUpdate(req.user._id, {
+        token: "",
+      });
+    } catch (err) {
+      console.log("error while logging out");
+    }
   }
   res.cookie("token", "", {sameSite: "none", secure: true}).status(200).json({
     success: true,
@@ -189,6 +257,8 @@ const searchUsers = asyncFunction(async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
+  loginGuestUser,
+  loginGoogleUser,
   logoutUser,
   profileUser,
   peopleUser,

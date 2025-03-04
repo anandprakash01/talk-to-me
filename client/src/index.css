@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
+:root {
   box-sizing: border-box;
-} */
+}
 /* html {
   box-sizing: border-box;
 }
