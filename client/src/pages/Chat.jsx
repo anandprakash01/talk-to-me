@@ -30,8 +30,8 @@ import AddToGroupIcon from "../assets/icons/AddToGroupIcon.jsx";
 import UserIconCircle from "../assets/icons/UserIconCircle.jsx";
 import LoadingPage from "../components/LoadingPage.jsx";
 
-const ENDPOINT = "http://localhost:5000";
-// const ENDPOINT = "https://talk-to-me-anand.onrender.com";
+// const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://talk-to-me-anand.onrender.com";
 var socket, selectedChatCompare;
 
 const Chat = () => {
@@ -726,7 +726,7 @@ const Chat = () => {
               value={newMessage}
               onChange={typingHandler}
               placeholder="Type your message here"
-              className="flex-grow text-xs xs:h-5 md:h-8 border xs:px-1 md:px-2 xs:rounded-md md:rounded-lg bg-bg_input outline-none focus-within:border focus-within:border-green-500"
+              className="flex-grow text-sm xs:h-5 md:h-8 border xs:px-1 md:px-2 xs:rounded-md md:rounded-lg bg-bg_input outline-none focus-within:border focus-within:border-green-500"
             />
             <label
               type="button"
