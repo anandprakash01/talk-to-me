@@ -430,11 +430,11 @@ const Chat = () => {
 
       {/* ====================contact sidebar*/}
 
-      <div className="flex flex-col bg-bg_primary_lite w-1/3 border-r border-r-[#0d4247]">
-        <div className="flex justify-between items-center border-b border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-7 md:min-h-12">
+      <div className="flex flex-col h-screen w-1/3 bg-bg_primary_lite border-r border-r-[#0d4247]">
+        <div className="flex justify-between items-center border-b border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-9 md:min-h-12">
           <div className="text-logo_color bg-primary_color font-bold flex gap-1 justify-center items-center xs:h-4 sm:h-4 md:h-6 lg:h-8 xl:h-10">
             <Logo />
-            <div className="select-none text-nowrap xs:text-[0.5rem] sm:text-xs md:text-lg lg:text-xl">
+            <div className="select-none text-nowrap xs:text-[0.6rem] sm:text-xs md:text-lg lg:text-xl">
               Talk To Me
             </div>
           </div>
@@ -448,17 +448,39 @@ const Chat = () => {
               className="select-none text-icon_color hover:text-white cursor-pointer"
             >
               <NotificationIcon />
-              {notification.length > 0 && (
-                <div className="absolute pl-1 h-4 w-4 bg-red-600 rounded-full text-xs -top-1 right-1">
+              {notification.length >= 0 && (
+                <div className="absolute pl-1 xs:size-3 md:size-4 bg-red-600 rounded-full xs:text-[.5rem] md:text-xs -top-1 -right-1">
                   {notification.length}
                 </div>
               )}
             </div>
             {/* ==========Show Notification */}
             {showNotification && (
-              <div className="absolute top-7 -right-5 w-72 min-w-44 bg-white rounded-lg overflow-hidden z-50 text-black shadow-gray-950 shadow-md">
+              <div
+                onClick={() => {
+                  setShowNotification(!showNotification);
+                }}
+                className="absolute -left-16 p-2 xs:w-52 sm:w-64 md:w-80 lg:w-120 bg-white rounded-lg overflow-hidden z-50 text-black shadow-gray-950 shadow-md"
+              >
+                <div className="absolute right-2 top-2 bg-[#EC7FA9] text-white rounded-sm cursor-pointer hover:bg-[#BE5985] transition-all duration-300">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.7"
+                    stroke="currentColor"
+                    className="xs:size-4 md:size-6 lg:size-7"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </div>
+
                 {!notification.length && (
-                  <div className="pl-20 py-8 border-b ">
+                  <div className="mb-2 mt-5 text-center xs:text-sm md:text-base">
                     <p>No new message</p>
                   </div>
                 )}
@@ -568,18 +590,18 @@ const Chat = () => {
           </div>
         </div>
         {/* ====================Logged in user */}
-        <div className="flex items-center justify-between bg-primary_color border-t border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-7 md:min-h-12">
+        <div className="flex items-center justify-between bg-primary_color border-t border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-9 md:min-h-12">
           <div
             onClick={() => {
               setShowProfile(true);
             }}
-            className="flex items-center text-[#F9DBBB] gap-2 select-none cursor-pointer"
+            className="flex items-center text-[#F9DBBB] xs:gap-1 md:gap-2 select-none cursor-pointer"
           >
             {/* <img src={userIcon} alt="" className="w-5" /> */}
             <span className="xs:w-5 md:w-8 hover:text-white transition-all duration-300">
               <UserIconCircle />
             </span>
-            <span className="md:text-lg font-medium hover:text-white transition-all duration-300 xs:text-[0.5rem]">
+            <span className="xs:text-[0.6rem] sm:text-xs md:text-base font-normal hover:text-white transition-all duration-300 ">
               {user.name}
             </span>
           </div>
@@ -610,7 +632,7 @@ const Chat = () => {
         {/* ==========Name and Profile */}
         {/* <Doodles /> */}
         {selectedChat && (
-          <div className="flex items-center justify-between bg-bg_primary_lite px-2 xs:min-h-7 md:min-h-12">
+          <div className="flex items-center justify-between bg-bg_primary_lite px-2 xs:min-h-9 md:min-h-12">
             {showSenderProfile &&
               (selectedChat.isGroupChat ? (
                 <GroupUpdateModal
@@ -719,25 +741,25 @@ const Chat = () => {
         {selectedChat && (
           <form
             onSubmit={sendMessage}
-            className="flex items-center gap-2 p-1 md:px-2 bg-primary_color xs:min-h-7 md:min-h-12"
+            className="flex items-center gap-1 p-1 md:px-2 bg-primary_color xs:min-h-9 md:min-h-12"
           >
             <input
               type="text"
               value={newMessage}
               onChange={typingHandler}
               placeholder="Type your message here"
-              className="flex-grow text-sm xs:h-5 md:h-8 border xs:px-1 md:px-2 xs:rounded-md md:rounded-lg bg-bg_input outline-none focus-within:border focus-within:border-green-500"
+              className="flex-grow xs:text-xs md:text-base xs:h-6 md:h-9 border xs:px-1 md:px-2 xs:rounded-md md:rounded-lg bg-bg_input outline-none focus-within:border focus-within:border-green-500"
             />
             <label
               type="button"
-              className="bg-blue-500 p-[2px] pl-[0.15rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-5 md:w-8 cursor-pointer text-icon_color hover:text-white hover:bg-blue-600 hover: transition-all duration-300"
+              className="bg-blue-500 p-[2px] pl-[0.15rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-6 md:w-9 cursor-pointer text-icon_color hover:text-white hover:bg-blue-600 hover: transition-all duration-300"
             >
               <input type="file" onChange={handleSendFile} className="hidden" />
               <LinkIcon />
             </label>
             <button
               type="submit"
-              className="text-icon_color bg-green-500 xs:p-[0.1rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-5 md:w-8 cursor-pointer hover:bg-green-600 hover:text-white transition-all duration-300"
+              className="text-icon_color bg-green-500 xs:p-[0.1rem] md:p-1 xs:rounded-sm md:rounded-lg xs:w-6 md:w-9 cursor-pointer hover:bg-green-600 hover:text-white transition-all duration-300"
             >
               <SendIcon />
             </button>

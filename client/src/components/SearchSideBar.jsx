@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import Contact from "./Contact";
 import axios from "axios";
 import {UserContext} from "../context/UserContext";
+import CloseIcon from "../assets/icons/CloseIcon";
 
 const SearchSideBar = ({onClick}) => {
   const [left, setLeft] = useState("-left-1/3");
@@ -70,24 +71,15 @@ const SearchSideBar = ({onClick}) => {
           onClick();
           setLeft("-left-60");
         }}
-        className="absolute bg-red-600 text-white right-1 top-1 px-2 py-1 rounded-md cursor-pointer hover:bg-red-700 transition-all duration-300"
+        className="absolute bg-[#EC7FA9] text-white right-1 top-1 px-2 py-1 rounded-md cursor-pointer hover:bg-[#BE5985] transition-all duration-300"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="size-6"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-        </svg>
+        <CloseIcon />
       </div>
       {/* </div> */}
-      <h1 className="mt-5 py-4 text-center font-medium text-lg">
-        Search user to message
+      <h1 className="mt-10 text-[#443627] text-center font-medium xs:text-sm md:text-lg">
+        Discover Contacts
       </h1>
-      <div className="flex gap-2 items-center">
+      <div className="flex mt-5">
         <input
           onChange={e => {
             setSearch(e.target.value);
@@ -95,10 +87,12 @@ const SearchSideBar = ({onClick}) => {
           }}
           value={search}
           placeholder="Search"
-          className="mx-5 w-full border h-9 bg-bg_input p-3 rounded-md outline-none focus-within:border-yellow-500"
+          className="text-black xs:mx-1 md:mx-2 xs:text-sm md:text-base xs:h-7 md:h-9 w-full rounded-lg p-2 bg-bg_input border outline-none focus-within:border-yellow-500"
         />
       </div>
-      {errorMsg && <div className="text-sm mx-3 text-red-500">{errorMsg}!</div>}
+      {errorMsg && (
+        <div className="xs:text-[0.5rem] md:text-sm mx-3 text-red-500">{errorMsg}!</div>
+      )}
 
       <div className="mt-5 bg-bg_primary_lite">
         {searchResult &&
