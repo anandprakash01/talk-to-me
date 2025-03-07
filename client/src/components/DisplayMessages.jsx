@@ -2,6 +2,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import {isLastMessage, isSameSender} from "../config/chatLogics";
 import Avatar from "./Avatar";
+import avatarUser from "../assets/icons/avatarUser.svg";
 
 const DisplayMessages = ({messages, message, userId, i}) => {
   const {sender, content, file} = message;
@@ -19,7 +20,7 @@ const DisplayMessages = ({messages, message, userId, i}) => {
       )} */}
       <div
         className={
-          "inline-block p-2 my-1 rounded-md xs:text-[0.5rem] md:text-sm  " +
+          "inline-block p-2 xs:ml-1 md:ml-4 mt-1 rounded-md xs:text-[0.6rem] md:text-sm  " +
           (sender._id === userId
             ? "bg-[#3695a1] text-[#FBF9F1]"
             : "bg-[#37a8c2] text-[#0f1114]")
@@ -53,7 +54,14 @@ const DisplayMessages = ({messages, message, userId, i}) => {
       {(isSameSender(messages, message, i, userId) ||
         isLastMessage(messages, i, userId)) &&
         sender._id !== userId && (
-          <Avatar username={sender.name} userId={sender._id} size="4" />
+          // <Avatar username={sender.name} userId={sender._id} size="4" />
+          <div className="relative">
+            <img
+              src={avatarUser}
+              alt=""
+              className="absolute bottom-0 -left-2 xs:w-3 md:w-5"
+            />
+          </div>
         )}
     </div>
   );

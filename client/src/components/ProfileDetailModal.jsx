@@ -26,7 +26,7 @@ const ProfileDetail = ({onClick, name, email, userId, image}) => {
             {/* <Avatar size="28" username={name} userId={userId} /> */}
             <img src={avatarUser} alt="" className="xs:w-20 md:w-40 mx-auto" />
           </div>
-          <div className="xs:text-base md:text-xl font-bold text-center text-emerald-200">
+          <div className="xs:text-base md:text-lg font-semibold text-center text-emerald-200">
             {name}
           </div>
           <div className="text-white text-center xs:text-sm md:text-base">{email}</div>

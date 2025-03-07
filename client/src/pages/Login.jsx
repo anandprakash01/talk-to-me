@@ -10,7 +10,7 @@ import Popup from "../components/Popup";
 import LoadingPage from "../components/LoadingPage";
 import show from "../assets/icons/show.svg";
 import hide from "../assets/icons/hide.svg";
-import loadingIcon from "../assets/loading.svg";
+import loadingIcon from "../assets/icons/loading.svg";
 
 import {auth, provider} from "../firebase";
 import {signInWithPopup} from "firebase/auth";

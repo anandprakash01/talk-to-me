@@ -3,7 +3,7 @@ import React from "react";
 const Popup = ({onClick, title, text}) => {
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-950 w-full h-screen z-40 bg-opacity-65 flex items-center justify-center transition-all duration-300">
-      <div className="absolute xs:w-60 md:w-96 bg-bg_primary_lite rounded-lg z-50">
+      <div className="absolute xs:w-60 sm:w-64 md:w-96 bg-bg_primary_lite rounded-lg z-50">
         <div className="relative">
           <div
             onClick={onClick}
@@ -25,10 +25,10 @@ const Popup = ({onClick, title, text}) => {
             </svg>
           </div>
         </div>
-        <div className="text-center mx-auto mt-4 w-2/3 p-5 xs:text-base md:text-lg font-bold text-emerald-200">
+        <div className="mt-5 text-center mx-auto xs:text-base md:text-lg font-semibold text-emerald-200">
           {title}
         </div>
-        <div className="mb-10 mx-auto w-3/4 text-white text-center xs:text-sm md:text-lg">
+        <div className="my-4 mx-auto w-3/4 text-white text-center xs:text-sm md:text-lg">
           {text}
         </div>
       </div>

@@ -4,7 +4,7 @@ const Logo = () => {
   return (
     <svg
       className="h-full"
-      height=""
+      // height=""
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 54 54"
       id="bubble-chat"

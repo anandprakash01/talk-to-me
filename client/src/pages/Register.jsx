@@ -16,7 +16,7 @@ import LoadingPage from "../components/LoadingPage";
 //icons components
 import show from "../assets/icons/show.svg";
 import hide from "../assets/icons/hide.svg";
-import loadingIcon from "../assets/loading.svg";
+import loadingIcon from "../assets/icons/loading.svg";
 
 const Register = () => {
   const navigate = useNavigate();

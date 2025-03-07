@@ -29,7 +29,6 @@ const SearchSideBar = ({onClick}) => {
         },
       };
       const response = await axios.get(`/api/v1/user/search?search=${search}`, config);
-      console.log(response.data);
 
       setSearchResult(response.data.users);
     } catch (err) {
@@ -63,7 +62,7 @@ const SearchSideBar = ({onClick}) => {
   return ReactDOM.createPortal(
     // <div className="fixed h-screen w-full top-0 left-0 bottom-0 right-0">
     <div
-      className={`fixed bg-white h-screen w-1/3 top-0 rounded-r-md overflow-hidden transition-all duration-300 ${left}`}
+      className={`fixed bg-[#C1D8C3] h-screen w-1/3 top-0 rounded-r-md overflow-hidden transition-all duration-300 ${left}`}
     >
       {/* <div className="relative"> */}
       <div
@@ -94,7 +93,7 @@ const SearchSideBar = ({onClick}) => {
         <div className="xs:text-[0.5rem] md:text-sm mx-3 text-red-500">{errorMsg}!</div>
       )}
 
-      <div className="mt-5 bg-bg_primary_lite">
+      <div className="max-h-[75%] mt-4 overflow-y-scroll overflow-x-hidden message-scrollbar ">
         {searchResult &&
           searchResult.map(user => (
             <Contact
@@ -111,8 +110,6 @@ const SearchSideBar = ({onClick}) => {
             />
           ))}
       </div>
-
-      {/* </div> */}
     </div>,
     document.body
   );

@@ -20,9 +20,7 @@ const Contact = ({userId, username, email, selected, onClick, online}) => {
         {/* <Avatar online={online} username={username} userId={userId} /> */}
         <img src={avatarUser} alt="" className="xs:w-5 md:w-10" />
         <div className="flex flex-col">
-          <span className="text-white xs:text-[0.55rem] md:text-sm xs:-mb-0.5">
-            {username}
-          </span>
+          <span className="xs:text-[0.55rem] md:text-sm xs:-mb-0.5">{username}</span>
           {email && (
             <div className="flex items-center flex-wrap">
               <span className="xs:text-[0.4rem] md:text-xs font-bold text-gray-800 mr-0.5">

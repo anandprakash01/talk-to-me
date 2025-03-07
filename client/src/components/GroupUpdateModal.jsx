@@ -16,7 +16,6 @@ const GroupUpdateModal = ({onClick}) => {
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [renameLoading, setRenameLoading] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState([]);
 
   const handleRemoveUser = async userToRemove => {
     if (selectedChat.groupAdmin._id !== user._id && userToRemove._id !== user._id) {
@@ -52,7 +51,7 @@ const GroupUpdateModal = ({onClick}) => {
       return;
     }
     if (selectedChat.groupAdmin._id !== userToAdd._id) {
-      console.log("Only admin can add someone");
+      // console.log("Only admin can add someone");
     }
 
     try {
@@ -105,6 +104,7 @@ const GroupUpdateModal = ({onClick}) => {
     }
     setGroupChatName("");
   };
+
   const handleSearch = async inputTxt => {
     if (!inputTxt) {
       // setErrorMsg("Please write to search");
@@ -240,13 +240,13 @@ const GroupUpdateModal = ({onClick}) => {
           {/* =================Searched User======= */}
           <div className="max-h-28 overflow-y-scroll overflow-x-hidden message-scrollbar">
             {searchResult?.map(u => {
-              if (selectedUsers.find(sel => sel._id === u._id)) {
+              if (selectedChat.users.find(sel => sel._id === u._id)) {
                 return;
               }
               return (
                 <div
                   onClick={() => {
-                    setSelectedUsers([...selectedUsers, u]);
+                    handleAddUser(u);
                   }}
                   key={u._id}
                   className="border-gray-700 flex items-center gap-2 cursor-pointer hover:bg-bg_primary_dark border-b  transition-all duration-300"

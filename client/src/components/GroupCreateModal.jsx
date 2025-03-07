@@ -80,10 +80,10 @@ const GroupCreateModal = ({onClick, title, text}) => {
             <CloseIcon />
           </div>
         </div>
-        <h1 className="text-center mx-auto p-2 font-bold text-emerald-200 xs:text-sm sm:text-base md:text-lg">
+        <h1 className="text-center mx-auto p-2 text-emerald-200 xs:text-base md:text-lg font-semibold">
           Create Group Chat
         </h1>
-        <div className="my-5 mx-auto w-full text-white text-center">
+        <div className="my-5 w-full text-white text-center">
           <form className="flex flex-col mx-2 gap-1">
             <input
               onChange={e => {
@@ -141,21 +141,6 @@ const GroupCreateModal = ({onClick, title, text}) => {
           {/* =================searched User=========== */}
 
           <div className="max-h-28 overflow-y-scroll overflow-x-hidden message-scrollbar">
-            {/* {searchResult.map(p => (
-                <Contact
-                  key={p._id}
-                  online={false}
-                  userId={p._id}
-                  username={p.name}
-                  email={p.email}
-                  onClick={() => {
-                    // accessChat(p._id);
-                    // onClick();
-                  }}
-                  selected={false}
-                />
-              ))} */}
-
             {searchResult?.map(u => {
               if (selectedUsers.find(sel => sel._id === u._id)) {
                 return;
