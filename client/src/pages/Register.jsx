@@ -54,10 +54,10 @@ const Register = () => {
   });
 
   useEffect(() => {
-    if (user.name) {
+    if (!isLoadingUserInfo && user?.name && !isPopup) {
       navigate("/chat");
     }
-  });
+  }, [isLoadingUserInfo, user]);
 
   //Email Validation
   const emailValidation = email => {
@@ -140,7 +140,6 @@ const Register = () => {
     }
     if (!email) {
       setEmailErr("! Enter your email");
-      // setFirebaseErr("");
     }
     //  else {
     //   if (!emailValidation(email)) {
@@ -217,7 +216,7 @@ const Register = () => {
       setTimeout(() => {
         setIsPopup(false);
         navigate("/chat");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.log("error in registration:=> ", error);
       setIsFullLoading(false);
@@ -226,9 +225,6 @@ const Register = () => {
         text: error.response?.data.message || "Something went wrong, Please try again!",
         title: "Error",
       });
-      setTimeout(() => {
-        setIsPopup(false);
-      }, 4000);
     }
   };
 
@@ -260,7 +256,7 @@ const Register = () => {
       setTimeout(() => {
         setIsPopup(false);
         navigate("/chat");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.log("error in Google login:=> ", error);
       setIsFullLoading(false);
@@ -269,9 +265,6 @@ const Register = () => {
         text: error.response?.data.message || "Something went wrong, Please try again!",
         title: "Error",
       });
-      setTimeout(() => {
-        setIsPopup(false);
-      }, 4000);
     }
   };
 
@@ -282,13 +275,10 @@ const Register = () => {
   // }
   // }, [id]);
 
-  if (isLoadingUserInfo) {
-    return <LoadingPage width={12} />;
-  }
-
   return (
     <div className="h-screen flex items-center justify-center bg-[#003C43]">
-      {isFullLoading && <LoadingPage width={12} />}
+      {(isLoadingUserInfo || isFullLoading) && <LoadingPage width={12} />}
+
       {isPopup && (
         <Popup
           onClick={() => {

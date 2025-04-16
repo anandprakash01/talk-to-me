@@ -8,9 +8,9 @@ export const UserContextProvider = ({children}) => {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(); //object
   const [fetchAgain, setFetchAgain] = useState(false);
-  const [notification, setNotification] = useState([]);
+  const [notification, setNotification] = useState([]); //store notifications
 
-  const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(true);
+  const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(false);
 
   useEffect(() => {
     //  axios
@@ -32,11 +32,12 @@ export const UserContextProvider = ({children}) => {
     const getProfile = async () => {
       setIsLoadingUserInfo(true);
       try {
-        const response = await axios.get("api/v1/user/get-profile");
+        const response = await axios.get("/api/v1/user/get-profile");
         setUser(response.data);
         setIsLoadingUserInfo(false);
       } catch (error) {
         console.log("can not get User details, error message:", error);
+        // alert("Failed to fetch user profile. Please try again later.");
         setIsLoadingUserInfo(false);
       }
     };

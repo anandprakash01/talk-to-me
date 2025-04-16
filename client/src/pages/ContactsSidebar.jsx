@@ -1,5 +1,6 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import axios from "axios";
+import {useNavigate} from "react-router";
 
 //components
 import {UserContext} from "../context/UserContext.jsx";
@@ -8,60 +9,106 @@ import Contact from "../components/Contact.jsx";
 import {getSender} from "../config/chatLogics.jsx";
 import ProfileDetail from "../components/ProfileDetailModal.jsx";
 import SearchSideBar from "../components/SearchSideBar.jsx";
+import Popup from "../components/Popup.jsx";
 
 //Icons
 import Logo from "../components/Logo";
 import NotificationIcon from "../assets/icons/NotificationIcon.jsx";
-import SearchIcon from "../assets/icons/SearchIcon.jsx";
+import SearchIcon from "../assets/icons/SearchUserIcon.jsx";
 import AddToGroupIcon from "../assets/icons/AddToGroupIcon.jsx";
 import LogoutIcon from "../assets/icons/LogoutIcon.jsx";
 import userIcon from "../assets/icons/userIcon.svg";
 import UserIconCircle from "../assets/icons/UserIconCircle.jsx";
-import {useNavigate} from "react-router";
+import loadingIcon from "../assets/icons/loading.svg";
 
-const ContactsSidebar = ({setMessages}) => {
+const ContactsSidebar = ({setMessages, socket}) => {
   const {
     user,
     setUser,
+    chats,
+    setChats,
     selectedChat,
     setSelectedChat,
     notification,
     setNotification,
-    chats,
+    fetchAgain,
   } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [popupMsg, setPopupMsg] = useState({
     title: "",
     text: "",
   });
-  const navigate = useNavigate();
-
+  const [isPopup, setIsPopup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [isGroupChatModal, setIsGroupChatModal] = useState(false);
-  const [isPopup, setIsPopup] = useState(false);
   const [isSearchSidebar, setIsSearchSidebar] = useState(false);
+  const [isContactsLoading, setIsContactsLoading] = useState(false);
+
+  // to remove duplicate notification with same person
+  let notificationChatIdCounts =
+    notification.length > 0
+      ? notification.reduce((acc, obj) => {
+          const chatId = obj.chat._id;
+          const existing = acc?.find(item => item.chat._id == chatId);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            acc.push({...obj, count: 1});
+          }
+          return acc;
+        }, [])
+      : [];
+
+  const fetchChats = async () => {
+    setIsContactsLoading(true);
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    try {
+      const res = await axios.get("/api/v1/chat/", config);
+      setChats(res.data);
+      setIsContactsLoading(false);
+    } catch (err) {
+      console.log("Error while loading the chats/contacts: ", err);
+      setIsPopup(true);
+      setPopupMsg({
+        text: "Something went wrong while loading the contacts, Please reload the page and try again!",
+        title: "Error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchChats();
+  }, []);
 
   const handleLogout = () => {
+    socket.emit("logout", {_id: user._id});
+    socket.disconnect();
     axios
       .get("/api/v1/user/logout")
       .then(res => {
         // setWs(null);
-        // setId("");
-        // setUsername("");
-        setUser({});
-        setSelectedChat(); //object
-        setMessages([]);
         // localStorage.removeItem("userInfo");
-        setIsPopup(true);
         setPopupMsg({
           text: "Successfully Logged out, redirecting you to Login page",
           title: "Logout",
         });
+        setIsPopup(true);
         setTimeout(() => {
+          // updating states here so that it will show popupMsg
+          setUser({});
+          setSelectedChat(); //object
+          setMessages([]);
+          setChats([]);
           setIsPopup(false);
           navigate("/login");
-        }, 3000);
+          // automatically go to login page because user changed and chat page does not allow
+        }, 2000);
       })
       .catch(err => {
         console.log("Error while logging out:=> ", err);
@@ -70,14 +117,29 @@ const ContactsSidebar = ({setMessages}) => {
           text: "Something went wrong, Please refresh and try again!",
           title: "Error",
         });
-        setTimeout(() => {
-          setIsPopup(false);
-        }, 4000);
       });
   };
 
   return (
     <>
+      {isPopup && (
+        <Popup
+          onClick={() => {
+            setIsPopup(!isPopup);
+          }}
+          text={popupMsg.text}
+          title={popupMsg.title}
+        />
+      )}
+
+      {isGroupChatModal && (
+        <GroupCreateModal
+          onClick={() => {
+            setIsGroupChatModal(false);
+          }}
+        />
+      )}
+
       {isSearchSidebar && (
         <SearchSideBar
           onClick={() => {
@@ -85,6 +147,7 @@ const ContactsSidebar = ({setMessages}) => {
           }}
         />
       )}
+
       <div className="flex flex-col h-screen w-1/3 bg-bg_primary_lite border-r border-r-[#0d4247]">
         <div className="flex justify-between items-center border-b border-[#0d4247] xs:mx-1 md:mx-2 xs:min-h-9 md:min-h-12">
           <div className="text-logo_color bg-primary_color font-bold flex gap-1 justify-center items-center xs:h-4 sm:h-4 md:h-6 lg:h-8 xl:h-10">
@@ -104,7 +167,7 @@ const ContactsSidebar = ({setMessages}) => {
             >
               <NotificationIcon />
               {notification.length >= 0 && (
-                <div className="absolute pl-1 xs:size-3 md:size-4 bg-red-600 rounded-full xs:text-[.5rem] md:text-xs -top-1 -right-1">
+                <div className="absolute xs:size-3 md:size-4 bg-red-600 rounded-full xs:text-[.5rem] md:text-xs -top-1 -right-1 text-center">
                   {notification.length}
                 </div>
               )}
@@ -112,6 +175,9 @@ const ContactsSidebar = ({setMessages}) => {
             {/* ==========Show Notification */}
             {showNotification && (
               <div className="absolute bg-[#C1D8C3] -left-16 p-2 xs:w-52 sm:w-64 md:w-80 lg:w-120 rounded-lg overflow-hidden z-50 text-black shadow-gray-950 shadow-md">
+                <div className="text-center xs:text-sm md:text-lg font-semibold text-bg_primary_dark">
+                  Notifications
+                </div>
                 <div
                   onClick={() => {
                     setShowNotification(!showNotification);
@@ -139,19 +205,37 @@ const ContactsSidebar = ({setMessages}) => {
                     <p>No new message</p>
                   </div>
                 )}
-                {notification.map(notif => {
+
+                {/* ==========Notification list====== */}
+                {notificationChatIdCounts.map(notif => {
                   return (
-                    <div key={notif._id} className="px-4 py-2 border-b">
-                      <p
+                    <div
+                      key={notif._id}
+                      className="xs:px-2 md:px-4 xs:py-1 md:py-2 border-b cursor-pointer xs:text-xs md:text-base hover:bg-primary_color hover:text-white rounded-md duration-300"
+                    >
+                      <div
                         onClick={() => {
+                          setShowNotification(!showNotification);
                           setSelectedChat(notif.chat);
                           setNotification(notification.filter(n => n !== notif));
                         }}
                       >
-                        {notif.chat.isGroupChat
-                          ? `New message in ${notif.chat.chatName}`
-                          : `New message from ${getSender(user, notif.chat.users).name}`}
-                      </p>
+                        {notif.chat.isGroupChat ? (
+                          <div>
+                            <span className="font-semibold">{`${notif.count} New message${
+                              notif.count > 1 ? "s" : ""
+                            }`}</span>
+                            {` in ${notif.chat.chatName}`}
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="font-semibold">{`${notif.count} New message${
+                              notif.count > 1 ? "s" : ""
+                            }`}</span>
+                            {` from ${getSender(user, notif.chat.users).name}`}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -160,50 +244,11 @@ const ContactsSidebar = ({setMessages}) => {
           </div>
         </div>
 
-        {isGroupChatModal && (
-          <GroupCreateModal
-            onClick={() => {
-              setIsGroupChatModal(false);
-            }}
-          />
-        )}
+        {isContactsLoading && <img src={loadingIcon} alt="" className="w-8 mx-auto" />}
 
         <div className="flex-grow relative h-full overflow-y-scroll overflow-x-hidden contact-scrollbar">
           {/* -------------contacts/chats------------ */}
           <div className="absolute top-0 bottom-0 left-0 right-0 text-white">
-            {/* <div className=""> */}
-            {/* {Object.keys(onlinePeople).map(userId => {
-        if (onlinePeople[userId] == username) return;
-        return (
-          <Contact
-            key={userId}
-            online={true}
-            userId={userId}
-            username={onlinePeople[userId]}
-            onClick={() => {
-              setSelectedUserId(userId);
-            }}
-            selected={userId == selectedUserId}
-          />
-        );
-      })} */}
-
-            {/* {Object.keys(offlinePeople).map(userId => {
-        if (offlinePeople[userId] == username) return;
-        return (
-          <Contact
-            key={userId}
-            online={false}
-            userId={userId}
-            username={offlinePeople[userId]}
-            onClick={() => {
-              setSelectedUserId(userId);
-            }}
-            selected={userId == selectedUserId}
-          />
-        );
-      })} */}
-
             {chats.map(chat => (
               <Contact
                 key={chat._id}

@@ -87,6 +87,7 @@ io.on("connection", socket => {
   });
 
   socket.on("join chat", room => {
+    // room is user.Data_id
     socket.join(room);
     console.log("User Joined Room: " + room);
   });
@@ -111,9 +112,20 @@ io.on("connection", socket => {
     });
   });
 
-  socket.off("setup", () => {
-    console.log("User Disconnected");
+  // socket.off("setup", () => {
+  //   console.log("User Disconnected");
+  //   socket.leave(userData._id);
+  // });
+
+  // Handle logout and disconnect the user
+  socket.on("logout", userData => {
+    console.log(`User Disconnected: ${userData._id}`);
+
+    // Leave the user's room
     socket.leave(userData._id);
+
+    // Disconnect the socket
+    socket.disconnect();
   });
 });
 

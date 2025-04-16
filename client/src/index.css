@@ -23,3 +23,20 @@
   border-radius: 0.3rem;
   /* cursor: pointer; */
 }
+
+/* for typing indication */
+@keyframes blink {
+  50% {
+    fill: transparent;
+  }
+}
+.dot {
+  animation: blink 1s infinite;
+  fill: rgb(245, 245, 245);
+}
+.dot:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.5s;
+}

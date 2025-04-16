@@ -15,7 +15,7 @@ const ProfileDetail = ({onClick, name, email, userId, image}) => {
         <div className="relative">
           <div
             onClick={onClick}
-            className="absolute bg-red-600 text-white right-1 top-1 px-2 py-1 rounded-md cursor-pointer hover:bg-red-700"
+            className="absolute bg-red-600 text-white right-1 top-1 px-2 py-1 rounded-md cursor-pointer hover:bg-red-800 transition-all duration-300"
           >
             {/* <img src={closeIcon} className="h-5" /> */}
             <CloseIcon />

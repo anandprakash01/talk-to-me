@@ -13,8 +13,8 @@ import "./App.css";
 
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Error from "./pages/Error";
 import Chat from "./pages/Chat";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   axios.defaults.baseURL = "https://talk-to-me-anand.onrender.com";
@@ -27,14 +27,14 @@ function App() {
         <Route
           path="/"
           element={<Navigate to="/login" replace />}
-          errorElement={<Error />}
+          errorElement={<NotFoundPage />}
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         <Route path="/chat" element={<Chat />} />
         <Route path="/chat/:id" element={<Chat />} />
-        <Route path="*" element={<Error />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     )
   );

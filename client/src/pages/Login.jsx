@@ -21,6 +21,8 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [shouldNavigate, setShouldNavigate] = useState(true);
+  const [isManualLogin, setIsManualLogin] = useState(false);
 
   const [emailErr, setEmailErr] = useState("");
   const [passwordErr, setPasswordErr] = useState("");
@@ -35,17 +37,18 @@ const Login = () => {
   });
 
   useEffect(() => {
-    if (user.name) {
+    if (user.name && !isPopup) {
       navigate("/chat");
     }
-  });
+  }, [user.name, navigate, isPopup]);
 
   const handleLogin = async e => {
     e.preventDefault();
+    setIsManualLogin(true);
+    setShouldNavigate(false);
     setIsFullLoading(true);
     if (!email) {
       setEmailErr("! Enter your email");
-      // setFirebaseErr("");
     }
     if (!password) {
       setPasswordErr("! Enter your Password");
@@ -56,12 +59,6 @@ const Login = () => {
     }
 
     try {
-      // const config = {// for sending token in headers
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //      Authorization: `Bearer TOKEN_HERE`,
-      //   },
-      // };
       const response = await axios.post(
         "/api/v1/user/login",
         {email, password},
@@ -73,23 +70,18 @@ const Login = () => {
         }
       );
       setUser(response.data);
-      // setUserName(data.name);
-      // setUserEmail(data.email);
-      // setId(data._id);
-      // setUserProfilePicture(data.profilePicture);
-
-      // setting up info in local storage
-      // localStorage.setItem("userInfo", JSON.stringify(data));
       setIsFullLoading(false);
+
       setIsPopup(true);
       setPopupMsg({
         text: "Successfully Logged in, redirecting you to chat page",
         title: "Logged in",
       });
+
       setTimeout(() => {
         setIsPopup(false);
         navigate("/chat");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.log("error in login:=> ", error);
       setIsFullLoading(false);
@@ -106,23 +98,26 @@ const Login = () => {
 
   const handleLoginGuest = async e => {
     e.preventDefault();
+    setIsManualLogin(true);
+    setShouldNavigate(false);
     setIsFullLoading(true);
     try {
       const response = await axios.post("/api/v1/user/login-guest", {
         email: "guestuser.talktome@gmail.com",
       });
       setUser(response.data);
-      // localStorage.setItem("userInfo", JSON.stringify(data));
       setIsFullLoading(false);
+
       setIsPopup(true);
       setPopupMsg({
         text: "Successfully Logged in, redirecting you to chat page",
         title: "Logged in",
       });
+
       setTimeout(() => {
         setIsPopup(false);
         navigate("/chat");
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.log("error in login guest:=> ", error);
       setIsFullLoading(false);
@@ -142,21 +137,9 @@ const Login = () => {
     setIsFullLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
-      // console.log("accessToken : ", result.user.accessToken);
       const accessToken = result.user.accessToken;
       const response = await axios.post("/api/v1/user/login-google", {accessToken});
-      // console.log(response);
       setUser(response.data);
-      // localStorage.setItem("userInfo", JSON.stringify(data));
-
-      // dispatch(
-      //   setUserInfo({
-      //     id: user.uid,
-      //     userName: user.displayName,
-      //     email: user.email,
-      //     photoURL: user.photoURL,
-      //   })
-      // );
       setIsFullLoading(false);
       setIsPopup(true);
       setPopupMsg({
@@ -181,12 +164,11 @@ const Login = () => {
     }
   };
 
-  if (isLoadingUserInfo) {
-    return <LoadingPage width={12} />;
-  }
   return (
     <div className="h-screen flex justify-center items-center bg-bg_primary_dark">
-      {isFullLoading && <LoadingPage width={12} />}
+      {(isLoadingUserInfo || isFullLoading) && <LoadingPage width={12} />}
+
+      {/* ===========popup================ */}
       {isPopup && (
         <Popup
           onClick={() => {
