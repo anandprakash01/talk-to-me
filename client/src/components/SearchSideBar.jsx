@@ -205,7 +205,7 @@ const SearchSideBar = ({onClick}) => {
               </div>
             )}
 
-            {searchResult.length > 0 ? (
+            {searchResult.length > 0 && searchTxt ? (
               searchResult &&
               searchResult.map(u => {
                 if (
