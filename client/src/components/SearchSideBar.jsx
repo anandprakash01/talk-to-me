@@ -199,6 +199,12 @@ const SearchSideBar = ({onClick}) => {
           <img src={loadingIcon} alt="" className="mt-10 w-8 mx-auto" />
         ) : (
           <div className="flex-grow mt-4 overflow-y-scroll overflow-x-hidden message-scrollbar text-[#443627">
+            {!searchTxt && (
+              <div className="xs:text-xs sm:text-sm md:text-base mx-2 text-center text-[#443627">
+                Start searching for contacts to begin a conversation
+              </div>
+            )}
+
             {searchResult.length > 0 ? (
               searchResult &&
               searchResult.map(u => {
@@ -221,10 +227,6 @@ const SearchSideBar = ({onClick}) => {
                   />
                 );
               })
-            ) : !searchTxt ? (
-              <div className="xs:text-xs sm:text-sm md:text-base mx-2 text-center text-[#443627">
-                Start searching for contacts to begin a conversation
-              </div>
             ) : (
               <div className="xs:text-xs sm:text-sm md:text-base mx-2 text-center text-red-900">
                 No match found. Maybe try a different name?
