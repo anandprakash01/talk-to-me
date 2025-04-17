@@ -32,7 +32,6 @@ import PreviewInputFile from "../components/PreviewInputFile.jsx";
 // const ENDPOINT = "http://localhost:5000";
 const ENDPOINT = "https://talk-to-me-anand.onrender.com";
 // var socket, selectedChatCompare;
-let selectedChatCompare;
 
 const Chat = () => {
   // const {username, setUsername, id, setId} = useContext(UserContext);
@@ -185,7 +184,6 @@ const Chat = () => {
   useEffect(() => {
     setMessages([]);
     fetchMessages();
-    selectedChatCompare = selectedChat;
   }, [selectedChat]);
 
   const debouncedTypingHandler = e => {

@@ -66,11 +66,12 @@ const SearchSideBar = ({onClick}) => {
 
       // Only update if this controller hasn't been aborted
       if (!controller.signal.aborted) {
-        setSearchResult(response.data.users);
-        // (u => {
-        //   if (
-        //     chats?.find(c => c.users[0]._id == u._id || c.users[1]._id == u._id)
-        //   )
+        // Filter out users that are already in the chats
+        setSearchResult(
+          response.data.users.filter(
+            u => !chats?.find(c => c.users[0]._id == u._id || c.users[1]._id == u._id)
+          )
+        );
       }
       setIsSearchLoading(false);
     } catch (err) {
