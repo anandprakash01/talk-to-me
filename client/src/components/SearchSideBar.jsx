@@ -67,9 +67,14 @@ const SearchSideBar = ({onClick}) => {
       // Only update if this controller hasn't been aborted
       if (!controller.signal.aborted) {
         setSearchResult(response.data.users);
+        // (u => {
+        //   if (
+        //     chats?.find(c => c.users[0]._id == u._id || c.users[1]._id == u._id)
+        //   )
       }
       setIsSearchLoading(false);
     } catch (err) {
+      setIsSearchLoading(false);
       if (err.name === "CanceledError") {
         // console.log("Request canceled due to new input");
       }
@@ -79,7 +84,6 @@ const SearchSideBar = ({onClick}) => {
       else {
         console.log("ERROR in Search:", err);
         setIsPopup(true);
-        setIsSearchLoading(false);
         setPopupMsg({
           text: err.response.data.message || "Something went wrong, Please try again!",
           title: "Oops! Search Issue Detected",
@@ -90,6 +94,7 @@ const SearchSideBar = ({onClick}) => {
 
   const debouncedSearch = searchTerm => {
     // Clear any existing timeout
+    setIsSearchLoading(true);
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
@@ -199,20 +204,17 @@ const SearchSideBar = ({onClick}) => {
           <img src={loadingIcon} alt="" className="mt-10 w-8 mx-auto" />
         ) : (
           <div className="flex-grow mt-4 overflow-y-scroll overflow-x-hidden message-scrollbar text-[#443627">
-            {!searchTxt && (
+            {!searchTxt ? (
               <div className="xs:text-xs sm:text-sm md:text-base mx-2 text-center text-[#443627">
                 Start searching for contacts to begin a conversation
               </div>
-            )}
-
-            {searchResult.length > 0 && searchTxt ? (
-              searchResult &&
+            ) : searchResult.length > 0 ? (
               searchResult.map(u => {
-                if (
-                  chats?.find(c => c.users[0]._id == u._id || c.users[1]._id == u._id)
-                ) {
-                  return;
-                }
+                // if (
+                //   chats?.find(c => c.users[0]._id == u._id || c.users[1]._id == u._id)
+                // ) {
+                //   return;
+                // }
                 return (
                   <Contact
                     key={u._id}
